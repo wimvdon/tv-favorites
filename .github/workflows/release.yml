@@ -1,0 +1,305 @@
+# Builds a signed release APK and publishes it as a GitHub Release.
+#
+# How to start it:
+#   - Actions tab -> Release -> Run workflow -> choose "patch", "minor" or "major".
+#     The next version is computed from the latest vX.Y.Z tag, the tag is created and
+#     the release is published.
+#   - Choose "none" to only build a downloadable APK (no tag, no release).
+#   - Or push a tag yourself: git tag v1.2.3 && git push origin v1.2.3
+#
+# It refuses to publish when: not on main, the tag/release already exists, the new
+# version is not higher than the previous one, or nothing changed since the previous release.
+#
+# Signing uses four repository secrets (see README): ANDROID_KEYSTORE_BASE64,
+# ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD. Without them a
+# publish fails; a "none" build falls back to a debug APK with a warning.
+name: Release
+
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Version bump (none = build an APK only, no release)"
+        type: choice
+        options: [none, patch, minor, major]
+        default: none
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build and publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      # Needed only to create the tag and the GitHub Release.
+      contents: write
+    outputs:
+      publish: ${{ steps.plan.outputs.publish }}
+      version: ${{ steps.plan.outputs.version }}
+      code: ${{ steps.plan.outputs.code }}
+      tag: ${{ steps.plan.outputs.tag }}
+
+    steps:
+      - name: Check out (full history, needed for tags)
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          persist-credentials: false
+
+      - name: Decide version and check release rules
+        id: plan
+        env:
+          EVENT: ${{ github.event_name }}
+          BUMP: ${{ inputs.bump }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          fail() { echo "::error title=Release refused::$1"; exit 1; }
+          # The checkout above (fetch-depth: 0) already has origin/main and every tag. It keeps no
+          # credentials, so no further git commands may talk to GitHub (a private repository would
+          # fail with "could not read Username"); use the gh API instead.
+          # Highest vX.Y.Z tag (by version, not date), optionally excluding one tag.
+          latest_tag() {
+            git tag --list 'v*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | grep -vxF "${1:-}" | head -n 1 || true
+          }
+
+          if [ "$EVENT" = "push" ]; then
+            tag="$GITHUB_REF_NAME"
+            version="$(python3 scripts/release_version.py parse-tag "$tag")" || fail "Tag $tag must look like v1.2.3."
+            git merge-base --is-ancestor "$GITHUB_SHA" origin/main || fail "Tag $tag points to a commit that is not on main."
+            if gh release view "$tag" >/dev/null 2>&1; then fail "A release for $tag already exists."; fi
+            previous="$(latest_tag "$tag")"
+            publish=true
+          elif [ "$BUMP" = "none" ]; then
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "Build only: no tag and no release will be created."
+            exit 0
+          else
+            [ "$GITHUB_REF" = "refs/heads/main" ] || fail "Releases can only be made from main (this run is on $GITHUB_REF_NAME)."
+            previous="$(latest_tag)"
+            version="$(python3 scripts/release_version.py next "$previous" "$BUMP")" || fail "Could not compute the next version."
+            tag="v$version"
+            if git rev-parse --quiet --verify "refs/tags/$tag" >/dev/null || gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" >/dev/null 2>&1; then
+              fail "Tag $tag already exists."
+            fi
+            publish=true
+          fi
+
+          if [ -n "$previous" ]; then
+            python3 scripts/release_version.py is-newer "$version" "${previous#v}" \
+              || fail "Version $version is not higher than the previous release ${previous}; phones would refuse to update."
+            [ "$(git rev-list --count "$previous..$GITHUB_SHA")" -gt 0 ] \
+              || fail "No commits since the previous release $previous. Nothing to release."
+          fi
+          code="$(python3 scripts/release_version.py code "$version")" || fail "Version $version cannot be used."
+
+          {
+            echo "publish=$publish"
+            echo "tag=$tag"
+            echo "version=$version"
+            echo "code=$code"
+            echo "previous=$previous"
+          } >> "$GITHUB_OUTPUT"
+          echo "Releasing $tag (versionCode $code); previous release: ${previous:-none}."
+
+      - name: Set up JDK
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle (with caching)
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-provider: basic
+
+      - name: Prepare signing key
+        id: signing
+        env:
+          PUBLISH: ${{ steps.plan.outputs.publish }}
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          missing=""
+          for name in ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
+            [ -n "${!name}" ] || missing="$missing $name"
+          done
+          if [ -n "$missing" ]; then
+            if [ "$PUBLISH" = "true" ]; then
+              echo "::error title=Signing secrets missing::Add these repository secrets before releasing:$missing (see README, 'Using this template')."
+              exit 1
+            fi
+            echo "::warning title=Signing secrets missing::$missing not set. Building a DEBUG APK instead of a signed release."
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          keystore="$RUNNER_TEMP/release.keystore"
+          python3 scripts/decode_keystore.py "$keystore"
+
+          # Check the keystore password and alias before spending time on the build.
+          if ! keytool -list -keystore "$keystore" -storepass:env ANDROID_KEYSTORE_PASSWORD >/dev/null 2>&1; then
+            echo "::error title=Keystore password::The keystore does not open with ANDROID_KEYSTORE_PASSWORD. Check that secret."
+            exit 1
+          fi
+          if ! keytool -list -keystore "$keystore" -storepass:env ANDROID_KEYSTORE_PASSWORD -alias "$ANDROID_KEY_ALIAS" >/dev/null 2>&1; then
+            count="$(keytool -list -keystore "$keystore" -storepass:env ANDROID_KEYSTORE_PASSWORD 2>/dev/null | grep -c 'PrivateKeyEntry' || true)"
+            echo "::error title=Key alias::ANDROID_KEY_ALIAS is not in the keystore (it holds $count key(s)). Check the alias you used with keytool -genkeypair."
+            exit 1
+          fi
+          # keytool cannot check the key password of PKCS12 keystores, so check it with Java.
+          java scripts/VerifySigningKey.java "$keystore"
+
+          umask 077
+          {
+            echo "storeFile=$keystore"
+            echo "storePassword=$ANDROID_KEYSTORE_PASSWORD"
+            echo "keyAlias=$ANDROID_KEY_ALIAS"
+            echo "keyPassword=$ANDROID_KEY_PASSWORD"
+          } > keystore.properties
+          echo "signed=true" >> "$GITHUB_OUTPUT"
+          echo "Signing key verified."
+
+      - name: Test and lint
+        run: ./gradlew testDebugUnitTest lintDebug
+
+      - name: Build APK
+        id: build
+        env:
+          PUBLISH: ${{ steps.plan.outputs.publish }}
+          SIGNED: ${{ steps.signing.outputs.signed }}
+          VERSION: ${{ steps.plan.outputs.version }}
+          CODE: ${{ steps.plan.outputs.code }}
+        run: |
+          set -euo pipefail
+          args=()
+          if [ "$PUBLISH" = "true" ]; then args=(-PappVersionName="$VERSION" -PappVersionCode="$CODE"); fi
+          base="$(./gradlew -q :app:printApkBaseName "${args[@]}")"
+          mkdir -p dist
+          if [ "$SIGNED" = "true" ]; then
+            ./gradlew assembleRelease "${args[@]}"
+            apk="dist/$base.apk"
+            cp app/build/outputs/apk/release/app-release.apk "$apk"
+            cp app/build/outputs/mapping/release/mapping.txt "dist/$base-mapping.txt"
+            apksigner="$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -n 1)"
+            "$apksigner" verify "$apk"
+            # The certificate fingerprint is public; it must stay the same for every release.
+            "$apksigner" verify --print-certs "$apk" | grep -E 'certificate (DN|SHA-256 digest)' || true
+          else
+            ./gradlew assembleDebug "${args[@]}"
+            apk="dist/$base-debug.apk"
+            cp app/build/outputs/apk/debug/app-debug.apk "$apk"
+          fi
+          echo "apk=$apk" >> "$GITHUB_OUTPUT"
+          echo "### Built \`$(basename "$apk")\`" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Remove signing key
+        if: always()
+        run: rm -f keystore.properties "$RUNNER_TEMP/release.keystore"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v7
+        with:
+          path: ${{ steps.build.outputs.apk }}
+          archive: false
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Upload R8 mapping file
+        if: steps.signing.outputs.signed == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          path: dist/*-mapping.txt
+          archive: false
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Publish GitHub Release
+        if: steps.plan.outputs.publish == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.plan.outputs.tag }}
+          PREVIOUS: ${{ steps.plan.outputs.previous }}
+        run: |
+          set -euo pipefail
+          notes_from=()
+          if [ -n "$PREVIOUS" ]; then notes_from=(--notes-start-tag "$PREVIOUS"); fi
+          # Creates the tag on this exact commit if it does not exist yet (manual runs).
+          gh release create "$TAG" dist/*.apk dist/*-mapping.txt \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "$TAG" \
+            --generate-notes "${notes_from[@]}" \
+            --latest
+          echo "### Published release [$TAG]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/tag/$TAG)" >> "$GITHUB_STEP_SUMMARY"
+
+  # ---------------------------------------------------------------------------
+  # OPTIONAL: upload to Google Play internal testing. Disabled until a Play
+  # Console app and a service account exist. To enable (see README, "Google Play"):
+  #   1. Create the app in the Play Console with the same applicationId and upload
+  #      the first AAB by hand (Play requires that).
+  #   2. Create a service account with "Release to testing tracks" permission and
+  #      add its JSON key as the repository secret PLAY_SERVICE_ACCOUNT_JSON.
+  #   3. Set PACKAGE_NAME below and uncomment this job.
+  # ---------------------------------------------------------------------------
+  # play-internal:
+  #   name: Upload to Google Play (internal testing)
+  #   needs: release
+  #   if: needs.release.outputs.publish == 'true'
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 30
+  #   permissions:
+  #     contents: read
+  #   env:
+  #     PACKAGE_NAME: com.example.template
+  #   steps:
+  #     - uses: actions/checkout@v7
+  #       with:
+  #         ref: ${{ needs.release.outputs.tag }}
+  #         persist-credentials: false
+  #     - uses: actions/setup-java@v6
+  #       with:
+  #         distribution: temurin
+  #         java-version: "21"
+  #     - uses: gradle/actions/setup-gradle@v6
+  #       with:
+  #         cache-provider: basic
+  #     - name: Build signed AAB
+  #       env:
+  #         ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+  #         ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+  #         ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+  #         ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+  #         VERSION: ${{ needs.release.outputs.version }}
+  #         CODE: ${{ needs.release.outputs.code }}
+  #       run: |
+  #         set -euo pipefail
+  #         python3 scripts/decode_keystore.py "$RUNNER_TEMP/release.keystore"
+  #         umask 077
+  #         printf 'storeFile=%s\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' \
+  #           "$RUNNER_TEMP/release.keystore" "$ANDROID_KEYSTORE_PASSWORD" "$ANDROID_KEY_ALIAS" "$ANDROID_KEY_PASSWORD" > keystore.properties
+  #         ./gradlew bundleRelease -PappVersionName="$VERSION" -PappVersionCode="$CODE"
+  #     - name: Remove signing key
+  #       if: always()
+  #       run: rm -f keystore.properties "$RUNNER_TEMP/release.keystore"
+  #     - name: Upload to internal testing
+  #       uses: r0adkll/upload-google-play@v1
+  #       with:
+  #         serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+  #         packageName: ${{ env.PACKAGE_NAME }}
+  #         releaseFiles: app/build/outputs/bundle/release/app-release.aab
+  #         mappingFile: app/build/outputs/mapping/release/mapping.txt
+  #         track: internal
+  #         status: completed

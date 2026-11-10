@@ -1,0 +1,86 @@
+# Checks every change: unit tests, lint, debug + release builds.
+# The debug APK is attached to each run so a pull request can be tested on a phone.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  # A new push to the same pull request cancels the older, now outdated, run.
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    name: Test, lint and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out (full history, needed for git-describe versions)
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          persist-credentials: false
+
+      - name: Set up JDK
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle (with caching)
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          # Open-source (MIT) cache implementation, no extra terms of use.
+          cache-provider: basic
+
+      - name: Test release scripts
+        run: python3 -m unittest discover -s scripts/tests -v
+
+      - name: Unit tests
+        run: ./gradlew testDebugUnitTest
+
+      - name: Lint
+        run: ./gradlew lintDebug
+
+      - name: Build debug and release APKs
+        # The release build is unsigned here; building it catches R8/shrinking problems early.
+        run: ./gradlew assembleDebug assembleRelease
+
+      - name: Name the debug APK
+        id: apk
+        run: |
+          base="$(./gradlew -q :app:printApkBaseName)"
+          mkdir -p dist
+          cp app/build/outputs/apk/debug/app-debug.apk "dist/${base}-debug.apk"
+          echo "path=dist/${base}-debug.apk" >> "$GITHUB_OUTPUT"
+          echo "### Debug APK: \`${base}-debug.apk\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "Download it from **Artifacts** at the bottom of this page and install it on your phone." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v7
+        with:
+          path: ${{ steps.apk.outputs.path }}
+          # Uploaded as a plain .apk (not a zip) so a phone can install it directly.
+          archive: false
+          retention-days: 3
+          if-no-files-found: error
+
+      - name: Upload test and lint reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: reports
+          path: |
+            app/build/reports/
+            app/build/test-results/
+          retention-days: 3
+          if-no-files-found: ignore

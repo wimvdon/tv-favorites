@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Template</string>
+    <string name="home_title">Hallo!</string>
+    <string name="home_body">Dit is het voorbeeldscherm van de app-template.</string>
+    <plurals name="home_tap_count">
+        <item quantity="one">%d keer getikt</item>
+        <item quantity="other">%d keer getikt</item>
+    </plurals>
+    <string name="home_tap_button">Tik hier</string>
+    <string name="home_reset_button">Opnieuw</string>
+</resources>

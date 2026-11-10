@@ -1,0 +1,33 @@
+# Gradle / build outputs
+.gradle/
+.kotlin/
+build/
+*/build/
+captures/
+*.apk
+*.aab
+*.ap_
+*.dex
+output-metadata.json
+
+# Local configuration (machine-specific, never commit)
+local.properties
+
+# Signing material (NEVER commit)
+keystore.properties
+*.jks
+*.keystore
+*.p12
+*.pfx
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.fleet/
+.DS_Store
+Thumbs.db
+
+# Python (release scripts)
+__pycache__/
+*.pyc

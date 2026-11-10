@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The name shown under the launcher icon. Rename per app (also in every values-xx folder). -->
+    <string name="app_name">Template</string>
+    <string name="home_title">Hello!</string>
+    <string name="home_body">This is the placeholder screen of the app template.</string>
+    <plurals name="home_tap_count">
+        <item quantity="one">Tapped %d time</item>
+        <item quantity="other">Tapped %d times</item>
+    </plurals>
+    <string name="home_tap_button">Tap me</string>
+    <string name="home_reset_button">Reset</string>
+</resources>
