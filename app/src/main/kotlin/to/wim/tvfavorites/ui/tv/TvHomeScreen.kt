@@ -29,7 +29,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
@@ -40,6 +42,7 @@ import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import android.view.ViewConfiguration
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.Button
 import androidx.tv.material3.Card
@@ -55,6 +58,8 @@ import to.wim.tvfavorites.launch.OpenFavoriteActivity
 import to.wim.tvfavorites.launch.Launcher
 import to.wim.tvfavorites.logic.Airing
 import to.wim.tvfavorites.logic.ChannelPlan
+import to.wim.tvfavorites.logic.LongPressDetector
+import to.wim.tvfavorites.logic.Press
 import to.wim.tvfavorites.logic.Ordering
 import to.wim.tvfavorites.logic.ServiceCatalog
 import to.wim.tvfavorites.model.Favorite
@@ -201,12 +206,30 @@ private fun TvFavoriteCard(
 ) {
     val resources = LocalResources.current
     val aired = Airing.dateAndEpisode(item).takeIf { it.isNotEmpty() }?.let { resources.getString(R.string.last_aired, it) }
+    // OK on the remote is handled here, not by the card: a long press opens the actions once,
+    // and letting go of OK afterwards neither opens the favorite nor presses a button in them.
+    val press = remember { LongPressDetector(ViewConfiguration.getLongPressTimeout().toLong()) }
     Column(Modifier.width(240.dp)) {
         Card(
             onClick = onClick,
             onLongClick = onLongClick,
             modifier =
                 modifier
+                    .onPreviewKeyEvent { event ->
+                        if (!event.isOk()) return@onPreviewKeyEvent false
+                        val result =
+                            when (event.type) {
+                                KeyEventType.KeyDown -> press.down(event.nativeKeyEvent.repeatCount, event.nativeKeyEvent.eventTime)
+                                KeyEventType.KeyUp -> press.up(event.nativeKeyEvent.eventTime)
+                                else -> Press.None
+                            }
+                        when (result) {
+                            Press.Click -> onClick()
+                            Press.LongPress -> onLongClick()
+                            Press.None -> Unit
+                        }
+                        true
+                    }.onFocusChanged { if (!it.isFocused) press.reset() }
                     .fillMaxWidth()
                     .aspectRatio(16f / 9f)
                     .then(if (moving) Modifier.border(3.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(12.dp)) else Modifier),
@@ -249,3 +272,6 @@ private fun TvEmpty(
         }
     }
 }
+
+/** The remote's OK button (or Enter on a keyboard). */
+internal fun KeyEvent.isOk(): Boolean = key == Key.DirectionCenter || key == Key.Enter || key == Key.NumPadEnter

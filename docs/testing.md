@@ -26,7 +26,7 @@ python3 -m unittest discover -s scripts/tests
   (`PageMetadataTest`), TVmaze parsing and regional matching, building a new favorite, landscape pictures (`LookupTest`),
   air date choice, refresh timing and time zones (`AiringTest`), service detection, finding the TV
   app and the order of links tried (`DeepLinksTest`), reordering, grouping and the group order (`OrderingTest`),
-  pairing codes (`PairingTest`), cookie and privacy walls (`ConsentGateTest`), home screen rows (`ChannelPlanTest`), the local list file and
+  pairing codes (`PairingTest`), cookie and privacy walls (`ConsentGateTest`), home screen rows, finding them again and updating tiles in place (`ChannelPlanTest`), short and long presses of OK (`LongPressTest`), the local list file and
   stored channel ids (`LocalLibraryStoreTest`), backup rules (`BackupRulesTest`).
 - Not covered by unit tests (needs a device): Firestore sync, the QR scanner, starting other apps,
   the TV home screen. Check those by hand (below).

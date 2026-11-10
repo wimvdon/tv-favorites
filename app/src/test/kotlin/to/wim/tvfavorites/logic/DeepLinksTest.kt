@@ -52,6 +52,24 @@ class DeepLinksTest {
     }
 
     @Test
+    fun `VTM GO opens the show through its own scheme first`() {
+        val url = "https://www.vtmgo.be/vtmgo/een-echte-job~343858f4-b704-452e-a1bc-e3a1e765ce9f?referrer=https%3A%2F%2Fwww.google.com%2F"
+        assertEquals(
+            listOf(
+                LaunchAttempt.View("vtmgo://www.vtmgo.be/vtmgo/een-echte-job~343858f4-b704-452e-a1bc-e3a1e765ce9f", "be.vmma.vtm.zenderapp"),
+                LaunchAttempt.View(url, "be.vmma.vtm.zenderapp"),
+                LaunchAttempt.OpenApp("be.vmma.vtm.zenderapp"),
+            ),
+            DeepLinks.plan(url, "vtmgo", "be.vmma.vtm.zenderapp", null),
+        )
+        assertEquals("vtmgo://www.vtmgo.be/vtmgo/afspelen/e1234", vtmGoLink("https://vtmgo.be/vtmgo/afspelen/e1234/"))
+        // Not a VTM GO page: left alone.
+        assertEquals("https://vtm.be/tv-gids", vtmGoLink("https://vtm.be/tv-gids"))
+        assertEquals("https://www.vtmgo.be/", vtmGoLink("https://www.vtmgo.be/"))
+        assertEquals("not a link", vtmGoLink("not a link"))
+    }
+
+    @Test
     fun `without an app only the link itself is tried`() {
         assertEquals(listOf(LaunchAttempt.View("https://x.org/a", null)), DeepLinks.plan("https://x.org/a", "x.org", null, null))
     }

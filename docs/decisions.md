@@ -132,3 +132,14 @@ those everywhere (phone thumbnails, TV cards, home screen tiles) and no longer h
 removed: no token to set up, no wrong posters; air dates come from TVmaze alone (search by title,
 regional match, no key). Cost: shows TVmaze doesn't know, and movies, get no air date. The
 service order is the user's own and shared, so the phone's groups and the TV's rows follow it.
+
+## 2026-11-10: Home screen rows like Nuvio, VTM GO's own link scheme
+
+The owner saw no rows on the TV's home screen, while Nuvio's "Continue watching" row does show.
+The rows are now written the way Nuvio writes its row: the TV provider permissions
+(`READ_EPG_DATA`, `WRITE_EPG_DATA`; owner's request, listed in PRIVACY.md), off the main thread,
+row by row, found again by the id they were written with, tiles read without a selection and
+updated in place. Still the platform `TvContract` API, no `tvprovider` library. VTM GO opens a show
+through `vtmgo://` (what its pages declare for apps, November 2026), as its https links only
+opened the app's start screen; the https link stays as the fallback.
+

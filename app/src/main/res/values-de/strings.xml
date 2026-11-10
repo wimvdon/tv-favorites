@@ -91,7 +91,7 @@
     <string name="tv_pick_app">TV-App</string>
     <string name="tv_rows_title">Reihen auf dem Startbildschirm</string>
     <string name="tv_rows_summary">Eine Reihe pro Dienst hinzufügen</string>
-    <string name="tv_rows_body">Die Reihe „Alle“ kommt von selbst. Android fragt für jede weitere Reihe einmal.</string>
+    <string name="tv_rows_body">Die Reihe „Alle“ kommt von selbst; fehlt sie auf dem Startbildschirm, füge sie hier hinzu. Android fragt für jede Reihe einmal.</string>
     <string name="tv_rows_none">Noch keine Reihen: sie erscheinen, sobald die Liste Favoriten hat.</string>
     <string name="tv_rows_add">Zum Startbildschirm hinzufügen</string>
     <plurals name="favorites_count">

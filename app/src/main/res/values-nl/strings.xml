@@ -91,8 +91,8 @@
     <string name="tv_pick_app">Tv-app</string>
     <string name="tv_rows_title">Rijen op het startscherm</string>
     <string name="tv_rows_summary">Een rij per streamingdienst toevoegen</string>
-    <string name="tv_rows_body">De rij “Alle” komt er vanzelf. Android vraagt het één keer per extra rij.</string>
-    <string name="tv_rows_none">Nog geen rijen per dienst: ze verschijnen zodra de lijst favorieten heeft.</string>
+    <string name="tv_rows_body">De rij “Alle” komt er vanzelf; staat ze niet op het startscherm, voeg ze dan hier toe. Android vraagt het één keer per rij.</string>
+    <string name="tv_rows_none">Nog geen rijen: ze verschijnen zodra de lijst favorieten heeft.</string>
     <string name="tv_rows_add">Toevoegen aan startscherm</string>
     <plurals name="favorites_count">
         <item quantity="one">%d favoriet</item>

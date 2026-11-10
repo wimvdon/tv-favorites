@@ -2,6 +2,7 @@ package to.wim.tvfavorites.ui.tv
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -82,23 +83,30 @@ fun TvApp() {
                     scrim = Color.Black,
                 ),
         ) {
-            when (route) {
-                TvRoute.Home ->
-                    TvHomeScreen(
-                        onPair = { route = TvRoute.Pair },
-                        onSettings = { route = TvRoute.Settings },
-                    )
-                TvRoute.Pair -> TvPairScreen(onDone = { route = TvRoute.Home })
-                TvRoute.Settings ->
-                    TvSettingsScreen(
-                        onPair = { route = TvRoute.Pair },
-                        onServices = { route = TvRoute.Services },
-                        onRows = { route = TvRoute.Rows },
-                        onRowOrder = { route = TvRoute.RowOrder },
-                    )
-                TvRoute.Services -> TvServicesScreen()
-                TvRoute.Rows -> TvRowsScreen()
-                TvRoute.RowOrder -> TvRowOrderScreen()
+            // TV Material's text is black unless something sets the colour: every TV screen and
+            // dialog gets the light text of the dark theme (both libraries' Text).
+            CompositionLocalProvider(
+                androidx.tv.material3.LocalContentColor provides m3.onBackground,
+                androidx.compose.material3.LocalContentColor provides m3.onBackground,
+            ) {
+                when (route) {
+                    TvRoute.Home ->
+                        TvHomeScreen(
+                            onPair = { route = TvRoute.Pair },
+                            onSettings = { route = TvRoute.Settings },
+                        )
+                    TvRoute.Pair -> TvPairScreen(onDone = { route = TvRoute.Home })
+                    TvRoute.Settings ->
+                        TvSettingsScreen(
+                            onPair = { route = TvRoute.Pair },
+                            onServices = { route = TvRoute.Services },
+                            onRows = { route = TvRoute.Rows },
+                            onRowOrder = { route = TvRoute.RowOrder },
+                        )
+                    TvRoute.Services -> TvServicesScreen()
+                    TvRoute.Rows -> TvRowsScreen()
+                    TvRoute.RowOrder -> TvRowOrderScreen()
+                }
             }
         }
     }
