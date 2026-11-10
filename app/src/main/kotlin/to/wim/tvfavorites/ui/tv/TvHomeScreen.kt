@@ -102,7 +102,7 @@ fun TvHomeScreen(
             items.isEmpty() -> TvEmpty(onPair = onPair, canPair = connection !is Connection.Unavailable)
             else -> {
                 val rows = listOf(ChannelPlan.ALL to (stringResource(R.string.tv_row_all) to Ordering.sorted(items))) +
-                    Ordering.groups(items).map { it.serviceId to (it.name to it.items) }
+                    Ordering.groups(items, order = library?.groupOrder.orEmpty()).map { it.serviceId to (it.name to it.items) }
                 LazyColumn(contentPadding = PaddingValues(bottom = 48.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     items(rows, key = { it.first }) { (rowKey, row) ->
                         val (name, list) = row
@@ -212,7 +212,7 @@ private fun TvFavoriteCard(
                     .then(if (moving) Modifier.border(3.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(12.dp)) else Modifier),
         ) {
             Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceVariant), contentAlignment = Alignment.Center) {
-                val picture = item.imageUrl.ifBlank { item.posterUrl }
+                val picture = item.imageUrl
                 if (picture.isNotBlank()) {
                     AsyncImage(model = picture, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
                 } else {

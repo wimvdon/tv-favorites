@@ -113,15 +113,13 @@ class LibraryRepository(
                 url = draft.url.trim(),
                 serviceId = draft.serviceId,
                 description = draft.description.trim(),
-                posterUrl = draft.posterUrl.trim(),
                 imageUrl = draft.imageUrl.trim(),
                 position = Ordering.positionForNew(current()),
                 addedAt = System.currentTimeMillis(),
-                tmdbId = draft.tmdbId,
-                tmdbType = draft.tmdbType,
+                tvMazeId = draft.tvMazeId,
                 lastAired = draft.lastAired,
                 lastEpisode = draft.lastEpisode,
-                checkedAt = if (draft.tmdbId > 0) System.currentTimeMillis() else 0,
+                checkedAt = if (draft.tvMazeId > 0) System.currentTimeMillis() else 0,
             )
         launchChange { add(listOf(item)) }
         return item
@@ -145,17 +143,23 @@ class LibraryRepository(
     }
 
     /**
-     * Looks up the last aired episode again for favorites matched on TMDB, once a day each
-     * (on the phone, which has the TMDB token). The TV's home screen rows follow the change.
+     * Looks up the last aired episode on TVmaze ([Airing.isDue]: daily for found shows, weekly
+     * for ones not found yet), on the phone and on the TV. The home screen rows follow the change.
      */
-    suspend fun refreshAiring(fetcher: DetailsFetcher, token: String, now: Long = System.currentTimeMillis()) {
-        if (token.isBlank() || !refreshing.tryLock()) return
+    suspend fun refreshAiring(fetcher: DetailsFetcher, now: Long = System.currentTimeMillis()) {
+        if (!refreshing.tryLock()) return
         try {
             for (item in current().filter { Airing.isDue(it, now) }.take(30)) {
-                val airing = fetcher.airing(item.tmdbId, item.tmdbType, token)
+                val showId = if (item.tvMazeId > 0) item.tvMazeId else fetcher.show(item.title, item.serviceId)?.id ?: 0
+                val airing = if (showId > 0) fetcher.airing(showId) else null
                 val latest = current().firstOrNull { it.id == item.id } ?: continue
-                // Also when TMDB couldn't be asked, so a failing title is tried again tomorrow, not every minute.
-                val next = if (airing == null) latest.copy(checkedAt = now) else latest.copy(lastAired = airing.date, lastEpisode = airing.episode, checkedAt = now)
+                // Also stamped when nothing was found, so a title is tried again later, not every minute.
+                val next =
+                    if (airing == null) {
+                        latest.copy(tvMazeId = showId, checkedAt = now)
+                    } else {
+                        latest.copy(tvMazeId = showId, lastAired = airing.date, lastEpisode = airing.episode, checkedAt = now)
+                    }
                 store.value.update(next)
             }
         } catch (e: Exception) {
@@ -169,14 +173,13 @@ class LibraryRepository(
 
     fun setOverride(serviceId: String, value: ServiceOverride) = launchChange { setOverride(serviceId, value) }
 
-    /** Saves the TMDB token on this device and in the shared list, for the paired devices. */
-    suspend fun setTmdbToken(token: String) {
-        settings.setTmdbToken(token)
-        launchChange { setTmdbToken(token) }
+    /** Moves the service group (and TV row) at [from] to [to], as they are shown now. */
+    fun moveGroup(from: Int, to: Int) {
+        val lib = library.value ?: return
+        val shown = Ordering.groups(lib.favorites, order = lib.groupOrder).map { it.serviceId }
+        val next = Ordering.moveGroup(shown, lib.groupOrder, from, to)
+        if (next != lib.groupOrder) launchChange { setGroupOrder(next) }
     }
-
-    /** This device's token, or the one shared by a paired device. */
-    suspend fun tmdbToken(): String = settings.currentDevice().tmdbToken.ifBlank { library.value?.tmdbToken.orEmpty() }
 
     /**
      * On the TV: makes sure there is a household to show in the QR code, creating one (and
@@ -212,8 +215,7 @@ class LibraryRepository(
                 .mapIndexed { i, f -> f.copy(position = start + i) }
         target.add(copies)
         mine.overrides.filterKeys { it !in theirs.overrides }.forEach { (k, v) -> target.setOverride(k, v) }
-        val token = settings.currentDevice().tmdbToken.ifBlank { mine.tmdbToken }
-        if (token.isNotBlank() && theirs.tmdbToken.isBlank()) target.setTmdbToken(token)
+        if (theirs.groupOrder.isEmpty() && mine.groupOrder.isNotEmpty()) target.setGroupOrder(mine.groupOrder)
         if (previous == null) local.clear() else runCatching { CloudLibraryStore.leave(db, auth, previous) }
         settings.setHousehold(household)
     }
@@ -225,7 +227,7 @@ class LibraryRepository(
         local.clear()
         local.add(mine.favorites)
         mine.overrides.forEach { (k, v) -> local.setOverride(k, v) }
-        if (mine.tmdbToken.isNotBlank()) local.setTmdbToken(mine.tmdbToken)
+        local.setGroupOrder(mine.groupOrder)
         val db = firestore()
         val auth = auth()
         if (db != null && auth != null) runCatching { CloudLibraryStore.leave(db, auth, household) }
@@ -234,10 +236,10 @@ class LibraryRepository(
 
     private suspend fun moveLocalInto(target: CloudLibraryStore) {
         val mine = local.library.value
-        if (mine.favorites.isEmpty() && mine.overrides.isEmpty() && mine.tmdbToken.isBlank()) return
+        if (mine.favorites.isEmpty() && mine.overrides.isEmpty() && mine.groupOrder.isEmpty()) return
         target.add(mine.favorites)
         mine.overrides.forEach { (k, v) -> target.setOverride(k, v) }
-        if (mine.tmdbToken.isNotBlank()) target.setTmdbToken(mine.tmdbToken)
+        if (mine.groupOrder.isNotEmpty()) target.setGroupOrder(mine.groupOrder)
         local.clear()
     }
 

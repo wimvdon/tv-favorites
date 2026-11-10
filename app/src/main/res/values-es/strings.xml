@@ -17,7 +17,6 @@
     <string name="action_move_up">Subir</string>
     <string name="action_move_down">Bajar</string>
     <string name="action_group_by_service">Agrupar por servicio</string>
-    <string name="action_one_list">Mostrar como una lista</string>
     <string name="action_refresh_details">Buscar de nuevo</string>
     <string name="section_expanded">Expandido</string>
     <string name="section_collapsed">Contraído</string>
@@ -32,10 +31,14 @@
     <string name="field_description">Descripción</string>
     <string name="field_link">Enlace</string>
     <string name="field_picture">Imagen (enlace)</string>
-    <string name="field_poster">Póster (enlace)</string>
+    <string name="group_order_title">Orden de los servicios</string>
+    <string name="group_order_summary">El orden de los grupos y de las filas en la TV</string>
+    <string name="group_order_body">También el orden de las filas en tu TV, después de “Todos”.</string>
+    <string name="tv_row_order_title">Orden de las filas</string>
+    <string name="tv_row_order_body">Selecciona una fila, muévela con ▲ ▼ y pulsa OK al terminar. Los grupos del teléfono la siguen.</string>
+    <string name="tv_row_moving">▲ ▼ para mover, OK al terminar</string>
     <string name="field_service">Servicio de streaming</string>
     <string name="refresh_failed">No se pudo buscar este enlace</string>
-    <string name="tmdb_hint">Con un token de TMDB en Ajustes se añaden pósteres y fechas de emisión.</string>
     <string name="last_aired">Última emisión %1$s</string>
     <string name="delete_title">¿Eliminar favorito?</string>
     <string name="delete_body">%1$s se eliminará de tu teléfono y tu TV.</string>
@@ -58,15 +61,6 @@
     <string name="unpair_title">Desconectar de la TV</string>
     <string name="unpair_body">Tu lista se queda en este teléfono y la TV conserva su copia.</string>
     <string name="unpair_action">Desconectar</string>
-    <string name="tmdb_title">Token de TMDB</string>
-    <string name="tmdb_summary_missing">Sin configurar: para pósteres y fechas de emisión</string>
-    <string name="tmdb_summary_missing_tv">Sin configurar: introdúcelo en tu teléfono, se comparte con esta TV</string>
-    <string name="tmdb_summary_set">Configurado</string>
-    <string name="tmdb_dialog_body">Tu propio “API Read Access Token” de themoviedb.org. Se comparte con tu TV conectada para que mantenga las fechas de emisión al día por sí sola.</string>
-    <string name="tmdb_tv_body">Más fácil en tu teléfono: un token introducido allí se comparte con esta TV.</string>
-    <string name="tmdb_invalid">Pega el “API Read Access Token” largo, no la clave API corta</string>
-    <string name="tmdb_steps_title">Cómo obtener un token de TMDB</string>
-    <string name="tmdb_steps">1. Crea una cuenta gratuita en themoviedb.org.\n2. Abre Settings › API y solicita una clave API (uso personal).\n3. Copia el “API Read Access Token” y pégalo aquí.</string>
     <string name="services_title">Apps de streaming</string>
     <string name="services_summary">Qué app de TV abre cada servicio</string>
     <string name="services_body">La TV encuentra sola la app de cada servicio. Cámbiala aquí si un programa no se abre.</string>
@@ -83,7 +77,7 @@
     <string name="theme_dark">Oscuro</string>
     <string name="dynamic_color">Color dinámico</string>
     <string name="dynamic_color_summary">Usar los colores del fondo de pantalla</string>
-    <string name="tvmaze_attribution">Horarios de emisión de TVmaze</string>
+    <string name="tvmaze_attribution">Fechas de emisión de TVmaze</string>
     <string name="tv_row_all">Todos</string>
     <string name="tv_connect_phone">Conectar teléfono</string>
     <string name="tv_connect_phone_summary">Mostrar el código para escanear con TV Favorites en tu teléfono</string>
@@ -100,4 +94,9 @@
     <string name="tv_rows_body">La fila “Todos” se añade sola. Android pregunta una vez por cada fila extra.</string>
     <string name="tv_rows_none">Aún no hay filas: aparecen cuando la lista tiene favoritos.</string>
     <string name="tv_rows_add">Añadir a la pantalla de inicio</string>
+    <plurals name="favorites_count">
+        <item quantity="one">%d favorito</item>
+        <item quantity="many">%d favoritos</item>
+        <item quantity="other">%d favoritos</item>
+    </plurals>
 </resources>

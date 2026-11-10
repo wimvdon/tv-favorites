@@ -20,7 +20,7 @@ import to.wim.tvfavorites.ui.theme.AppTheme
 import to.wim.tvfavorites.data.ThemeMode
 
 /** The TV's pages. */
-enum class TvRoute { Home, Pair, Settings, Services, Rows }
+enum class TvRoute { Home, Pair, Settings, Services, Rows, RowOrder }
 
 /**
  * The TV app: works on its own once set up. It keeps the shared list, the home screen rows and
@@ -43,12 +43,12 @@ fun TvApp() {
     // Home screen rows and air dates follow every change of the list.
     LaunchedEffect(library) {
         val lib = library ?: return@LaunchedEffect
-        HomeChannels(context).sync(lib.favorites)
-        app.library.refreshAiring(app.details, app.library.tmdbToken())
+        HomeChannels(context).sync(lib.favorites, lib.groupOrder)
+        app.library.refreshAiring(app.details)
     }
 
     BackHandler(enabled = route != TvRoute.Home) {
-        route = if (route == TvRoute.Services || route == TvRoute.Rows) TvRoute.Settings else TvRoute.Home
+        route = if (route == TvRoute.Services || route == TvRoute.Rows || route == TvRoute.RowOrder) TvRoute.Settings else TvRoute.Home
     }
 
     // Material 3 for dialogs and text fields, TV Material for focusable cards and buttons; TVs are dark.
@@ -94,9 +94,11 @@ fun TvApp() {
                         onPair = { route = TvRoute.Pair },
                         onServices = { route = TvRoute.Services },
                         onRows = { route = TvRoute.Rows },
+                        onRowOrder = { route = TvRoute.RowOrder },
                     )
                 TvRoute.Services -> TvServicesScreen()
                 TvRoute.Rows -> TvRowsScreen()
+                TvRoute.RowOrder -> TvRowOrderScreen()
             }
         }
     }

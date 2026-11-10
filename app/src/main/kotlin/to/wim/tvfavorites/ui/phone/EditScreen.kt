@@ -70,7 +70,6 @@ import to.wim.tvfavorites.ui.theme.readableWidth
 @Composable
 fun AddScreen(
     link: SharedLink,
-    tmdbToken: String,
     onBack: () -> Unit,
     onSaved: () -> Unit,
 ) {
@@ -79,7 +78,7 @@ fun AddScreen(
     val app = context.app
     var draft by remember(link) { mutableStateOf<Draft?>(null) }
     LaunchedEffect(link) {
-        draft = runCatching { app.details.fetch(link, tmdbToken) }.getOrElse {
+        draft = runCatching { app.details.fetch(link) }.getOrElse {
             // Offline or a page that can't be read: the link alone, to fill in by hand.
             to.wim.tvfavorites.logic.DraftBuilder.build(link, link.url, null)
         }
@@ -87,7 +86,6 @@ fun AddScreen(
     DetailsForm(
         title = stringResource(R.string.add_title),
         draft = draft,
-        tmdbToken = tmdbToken,
         onBack = onBack,
         onSave = { saved ->
             app.library.add(saved)
@@ -101,7 +99,6 @@ fun AddScreen(
 @Composable
 fun EditScreen(
     id: String,
-    tmdbToken: String,
     onBack: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -115,12 +112,11 @@ fun EditScreen(
     }
     val draft =
         item?.let {
-            Draft(it.url, it.serviceId, it.title, it.description, it.posterUrl, it.imageUrl, it.tmdbId, it.tmdbType, it.lastAired, it.lastEpisode)
+            Draft(it.url, it.serviceId, it.title, it.description, it.imageUrl, it.tvMazeId, it.lastAired, it.lastEpisode)
         }
     DetailsForm(
         title = stringResource(R.string.edit_title),
         draft = draft,
-        tmdbToken = tmdbToken,
         onBack = onBack,
         actions = {
             if (item != null) {
@@ -143,10 +139,8 @@ fun EditScreen(
                         url = saved.url.trim(),
                         serviceId = saved.serviceId,
                         description = saved.description.trim(),
-                        posterUrl = saved.posterUrl.trim(),
                         imageUrl = saved.imageUrl.trim(),
-                        tmdbId = saved.tmdbId,
-                        tmdbType = saved.tmdbType,
+                        tvMazeId = saved.tvMazeId,
                         lastAired = saved.lastAired,
                         lastEpisode = saved.lastEpisode,
                     ),
@@ -177,7 +171,6 @@ fun EditScreen(
 private fun DetailsForm(
     title: String,
     draft: Draft?,
-    tmdbToken: String,
     onBack: () -> Unit,
     onSave: (Draft) -> Unit,
     actions: @Composable () -> Unit = {},
@@ -227,7 +220,7 @@ private fun DetailsForm(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                val picture = current.imageUrl.ifBlank { current.posterUrl }
+                val picture = current.imageUrl
                 if (picture.isNotBlank()) {
                     AsyncImage(
                         model = picture,
@@ -276,13 +269,6 @@ private fun DetailsForm(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )
-                OutlinedTextField(
-                    value = current.posterUrl,
-                    onValueChange = { form = current.copy(posterUrl = it) },
-                    label = { Text(stringResource(R.string.field_poster)) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                )
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                     Button(onClick = { onSave(current) }, enabled = current.title.isNotBlank() && current.url.startsWith("http")) {
                         Text(stringResource(R.string.action_save))
@@ -293,21 +279,16 @@ private fun DetailsForm(
                             refreshing = true
                             scope.launch {
                                 val link = SharedLink(current.url, current.title)
-                                val fresh = runCatching { app.details.fetch(link, tmdbToken) }.getOrNull()
+                                val fresh = runCatching { app.details.fetch(link) }.getOrNull()
                                 if (fresh != null) {
                                     form =
                                         current.copy(
                                             title = fresh.title.ifBlank { current.title },
                                             description = fresh.description.ifBlank { current.description },
-                                            // Fresh pictures replace both old ones, so a wrong TMDB poster goes away.
-                                            posterUrl = if (fresh.posterUrl.isNotBlank() || fresh.imageUrl.isNotBlank()) fresh.posterUrl else current.posterUrl,
-                                            imageUrl = if (fresh.posterUrl.isNotBlank() || fresh.imageUrl.isNotBlank()) fresh.imageUrl else current.imageUrl,
-                                            // The stricter match may drop a wrong TMDB title, and its air dates with it.
-                                            // (Without a token TMDB wasn't asked, so what is known stays.)
-                                            tmdbId = if (tmdbToken.isBlank()) current.tmdbId else fresh.tmdbId,
-                                            tmdbType = if (tmdbToken.isBlank()) current.tmdbType else fresh.tmdbType,
-                                            lastAired = if (tmdbToken.isBlank()) current.lastAired else fresh.lastAired,
-                                            lastEpisode = if (tmdbToken.isBlank()) current.lastEpisode else fresh.lastEpisode,
+                                            imageUrl = fresh.imageUrl.ifBlank { current.imageUrl },
+                                            tvMazeId = fresh.tvMazeId,
+                                            lastAired = fresh.lastAired,
+                                            lastEpisode = fresh.lastEpisode,
                                         )
                                 } else {
                                     Toast.makeText(context, R.string.refresh_failed, Toast.LENGTH_SHORT).show()
@@ -321,9 +302,6 @@ private fun DetailsForm(
                         }
                         Text(stringResource(R.string.action_refresh_details))
                     }
-                }
-                if (tmdbToken.isBlank()) {
-                    Text(stringResource(R.string.tmdb_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
@@ -381,6 +359,6 @@ private fun ServiceChoiceDialog(
 /** Keeps the form across rotation. */
 private val DraftSaver =
     androidx.compose.runtime.saveable.Saver<Draft?, List<String>>(
-        save = { d -> d?.let { listOf(it.url, it.serviceId, it.title, it.description, it.posterUrl, it.imageUrl, it.tmdbId.toString(), it.tmdbType, it.lastAired, it.lastEpisode) } ?: emptyList() },
-        restore = { l -> if (l.size < 10) null else Draft(l[0], l[1], l[2], l[3], l[4], l[5], l[6].toLongOrNull() ?: 0, l[7], l[8], l[9]) },
+        save = { d -> d?.let { listOf(it.url, it.serviceId, it.title, it.description, it.imageUrl, it.tvMazeId.toString(), it.lastAired, it.lastEpisode) } ?: emptyList() },
+        restore = { l -> if (l.size < 8) null else Draft(l[0], l[1], l[2], l[3], l[4], l[5].toLongOrNull() ?: 0, l[6], l[7]) },
     )

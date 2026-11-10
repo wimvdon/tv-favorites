@@ -13,15 +13,12 @@ data class Favorite(
     val url: String,
     val serviceId: String,
     val description: String = "",
-    /** Portrait poster (TMDB), or empty. */
-    val posterUrl: String = "",
-    /** Landscape picture (the page's preview image or a TMDB backdrop), or empty. */
+    /** The service's own picture (landscape, from the page's preview tags), or empty. */
     val imageUrl: String = "",
     val position: Long = 0,
     val addedAt: Long = 0,
-    /** The matching TMDB title ("tv" or "movie" and its id), or 0 when there is no clear match. */
-    val tmdbId: Long = 0,
-    val tmdbType: String = "",
+    /** The matching TVmaze show, or 0 when none is known (yet). */
+    val tvMazeId: Long = 0,
     /** When the latest episode aired (a movie: its release), as yyyy-MM-dd, or empty. */
     val lastAired: String = "",
     /** That episode as "S2E5", or empty. */
@@ -46,9 +43,6 @@ data class ServiceOverride(
 data class Library(
     val favorites: List<Favorite> = emptyList(),
     val overrides: Map<String, ServiceOverride> = emptyMap(),
-    /**
-     * The TMDB token shared with the paired devices, so the TV can look up air dates without
-     * the phone. Only devices in the household can read it.
-     */
-    val tmdbToken: String = "",
+    /** The user's order of the services (groups on the phone, rows on the TV); others follow. */
+    val groupOrder: List<String> = emptyList(),
 )

@@ -25,10 +25,10 @@ class HomeChannelsJob : JobService() {
                 withTimeoutOrNull(20_000) { app.library.library.filterNotNull().collect { latest = it } }
                 if (latest != null) {
                     // The TV keeps its air dates up to date itself, without the phone.
-                    app.library.refreshAiring(app.details, app.library.tmdbToken())
+                    app.library.refreshAiring(app.details)
                     withTimeoutOrNull(10_000) { app.library.library.filterNotNull().collect { latest = it } }
                 }
-                latest?.let { HomeChannels(this@HomeChannelsJob).sync(it.favorites) }
+                latest?.let { HomeChannels(this@HomeChannelsJob).sync(it.favorites, it.groupOrder) }
                 jobFinished(params, false)
             }
         return true
@@ -47,7 +47,7 @@ class InitializeProgramsReceiver : BroadcastReceiver() {
         HomeChannels.schedule(context)
         context.app.scope.launch {
             val library = withTimeoutOrNull(8_000) { context.app.library.library.filterNotNull().first() }
-            library?.let { HomeChannels(context).sync(it.favorites) }
+            library?.let { HomeChannels(context).sync(it.favorites, it.groupOrder) }
             pending.finish()
         }
     }

@@ -32,14 +32,17 @@ class HomeChannels(private val context: Context) {
     private val resolver get() = context.contentResolver
 
     /** Writes the rows for [items]. Rows of services without favorites are removed. */
-    suspend fun sync(items: List<Favorite>) {
+    suspend fun sync(
+        items: List<Favorite>,
+        groupOrder: List<String> = emptyList(),
+    ) {
         if (!context.app.isTv) return
         try {
             // Dates and times in the TV's own language and time zone.
             val plan =
                 ChannelPlan.plan(items, context.getString(R.string.tv_row_all), aired = { item ->
                     Airing.dateAndEpisode(item).takeIf { it.isNotEmpty() }?.let { context.getString(R.string.last_aired, it) }.orEmpty()
-                })
+                }, groupOrder = groupOrder)
             val known = context.app.settings.currentDevice().channels.toMutableMap()
             val wanted = plan.map { it.key }.toSet()
             for ((key, id) in known.toMap()) {
@@ -109,13 +112,9 @@ class HomeChannels(private val context: Context) {
                     put(TvContract.PreviewPrograms.COLUMN_TYPE, TvContract.PreviewPrograms.TYPE_TV_SERIES)
                     put(TvContract.PreviewPrograms.COLUMN_TITLE, p.title)
                     put(TvContract.PreviewPrograms.COLUMN_SHORT_DESCRIPTION, p.description.take(300))
-                    if (p.imageUrl.isNotBlank()) {
-                        put(TvContract.PreviewPrograms.COLUMN_POSTER_ART_URI, p.imageUrl)
-                        put(
-                            TvContract.PreviewPrograms.COLUMN_POSTER_ART_ASPECT_RATIO,
-                            if (p.portrait) TvContract.PreviewPrograms.ASPECT_RATIO_2_3 else TvContract.PreviewPrograms.ASPECT_RATIO_16_9,
-                        )
-                    }
+                    if (p.imageUrl.isNotBlank()) put(TvContract.PreviewPrograms.COLUMN_POSTER_ART_URI, p.imageUrl)
+                    // Every tile is landscape, as the services' own pictures are.
+                    put(TvContract.PreviewPrograms.COLUMN_POSTER_ART_ASPECT_RATIO, TvContract.PreviewPrograms.ASPECT_RATIO_16_9)
                     put(TvContract.PreviewPrograms.COLUMN_INTENT_URI, open)
                     put(TvContract.PreviewPrograms.COLUMN_INTERNAL_PROVIDER_ID, p.favoriteId)
                     // The launcher shows heavier tiles first.

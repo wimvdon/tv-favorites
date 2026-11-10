@@ -3,8 +3,8 @@
 Save shows and movies from any streaming service on your phone and watch them from your Android TV.
 
 - **Phone:** in VRT MAX, VTM GO, GoPlay, Netflix or any other streaming app, tap **Share › TV
-  Favorites**. The app fills in the title, description and picture (and, with a free TMDB token,
-  the poster and when the latest episode aired). Reorder, group by service, edit and delete.
+  Favorites**. The app fills in the title, description and the service's own picture, and when the
+  latest episode aired (from TVmaze). Reorder, group by service (in your own order), edit and delete.
 - **TV:** your favorites in rows ("All" and per service), on the Android TV home screen too. Press
   OK to open a show in its streaming app. Works on its own: the phone is only needed to add shows.
 - **Pairing:** on the TV, open **Connect phone**; on the phone, **Settings › Connect to TV** and scan

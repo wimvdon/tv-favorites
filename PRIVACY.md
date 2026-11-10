@@ -1,6 +1,6 @@
 # Privacy policy
 
-_Last updated: 2026-11-10_
+_Last updated: 2026-11-10 (0.1.2: TMDB removed)_
 
 TV Favorites keeps a list of shows and movies you saved, on your phone and the TV it is paired
 with. It has no account, no analytics, no advertising and no crash reporting.
@@ -9,14 +9,12 @@ with. It has no account, no analytics, no advertising and no crash reporting.
 
 - **Your favorites** (title, description, picture links, the link you shared, the streaming
   service, the last aired episode), **per-service settings** (which TV app opens a service, a link
-  pattern) and, if you entered one, **your TMDB token**:
+  pattern) and **the order of the services**:
   - before pairing: in a file on your phone only;
   - once a phone and a TV are paired: in Google Firebase (Cloud Firestore, region `europe-west1`,
     Belgium), in a "household" that only the paired devices can read or change. Each device signs
-    in to Firebase anonymously; no name, e-mail address or Google account is involved. The TMDB
-    token is shared so the TV can keep air dates up to date without the phone.
-- **On each device only**: which household it belongs to, the TMDB token you typed on that device,
-  and the ids of the TV's home screen rows.
+    in to Firebase anonymously; no name, e-mail address or Google account is involved.
+- **On each device only**: which household it belongs to and the ids of the TV's home screen rows.
 - **Backed up by Android** (to your Google account, if you turned that on, and when moving to a new
   phone): only your appearance settings and whether the list is grouped by service.
 
@@ -27,12 +25,10 @@ phones.
 
 - **The page you share** (for example `vrt.be` or `netflix.com`), once, to read its title,
   description and picture, as a browser would.
-- **TMDB** (`api.themoviedb.org`), only with your own token: the title, to find its poster, and the
-  TMDB id, to find when the latest episode aired.
-- **TVmaze** (`api.tvmaze.com`, no account): the show's IMDb id, for the exact time the latest
-  episode aired.
+- **TVmaze** (`api.tvmaze.com`, no account): the show's title, to find the show, and then its
+  TVmaze id, to find when the latest episode aired. Both the phone and the TV ask.
 - **Google Firebase**, for the anonymous sign-in and the shared list.
-- **Picture hosts** (TMDB, the streaming services) to show posters.
+- **Picture hosts** of the streaming services, to show their pictures.
 
 ## Removing your data
 

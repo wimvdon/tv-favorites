@@ -17,7 +17,6 @@
     <string name="action_move_up">Nach oben</string>
     <string name="action_move_down">Nach unten</string>
     <string name="action_group_by_service">Nach Dienst gruppieren</string>
-    <string name="action_one_list">Als eine Liste zeigen</string>
     <string name="action_refresh_details">Erneut suchen</string>
     <string name="section_expanded">Ausgeklappt</string>
     <string name="section_collapsed">Eingeklappt</string>
@@ -32,10 +31,14 @@
     <string name="field_description">Beschreibung</string>
     <string name="field_link">Link</string>
     <string name="field_picture">Bild (Link)</string>
-    <string name="field_poster">Poster (Link)</string>
+    <string name="group_order_title">Reihenfolge der Dienste</string>
+    <string name="group_order_summary">Die Reihenfolge der Gruppen und der Reihen auf dem Fernseher</string>
+    <string name="group_order_body">Auch die Reihenfolge der Reihen auf deinem Fernseher, nach „Alle“.</string>
+    <string name="tv_row_order_title">Reihenfolge der Reihen</string>
+    <string name="tv_row_order_body">Wähle eine Reihe, verschiebe sie mit ▲ ▼ und drücke OK, wenn du fertig bist. Die Gruppen auf dem Handy folgen.</string>
+    <string name="tv_row_moving">▲ ▼ zum Verschieben, OK zum Beenden</string>
     <string name="field_service">Streamingdienst</string>
     <string name="refresh_failed">Dieser Link konnte nicht gesucht werden</string>
-    <string name="tmdb_hint">Mit einem TMDB-Token in den Einstellungen kommen Poster und Sendedaten dazu.</string>
     <string name="last_aired">Zuletzt gesendet %1$s</string>
     <string name="delete_title">Favorit löschen?</string>
     <string name="delete_body">%1$s wird von deinem Handy und Fernseher entfernt.</string>
@@ -58,15 +61,6 @@
     <string name="unpair_title">Vom Fernseher trennen</string>
     <string name="unpair_body">Deine Liste bleibt auf diesem Handy, der Fernseher behält seine Kopie.</string>
     <string name="unpair_action">Trennen</string>
-    <string name="tmdb_title">TMDB-Token</string>
-    <string name="tmdb_summary_missing">Nicht festgelegt: für Poster und Sendedaten</string>
-    <string name="tmdb_summary_missing_tv">Nicht festgelegt: gib es auf dem Handy ein, es wird mit diesem Fernseher geteilt</string>
-    <string name="tmdb_summary_set">Festgelegt</string>
-    <string name="tmdb_dialog_body">Dein eigenes „API Read Access Token“ von themoviedb.org. Es wird mit deinem verbundenen Fernseher geteilt, damit er die Sendedaten selbst aktuell hält.</string>
-    <string name="tmdb_tv_body">Einfacher auf dem Handy: ein dort eingegebenes Token wird mit diesem Fernseher geteilt.</string>
-    <string name="tmdb_invalid">Füge das lange „API Read Access Token“ ein, nicht den kurzen API-Schlüssel</string>
-    <string name="tmdb_steps_title">So bekommst du ein TMDB-Token</string>
-    <string name="tmdb_steps">1. Erstelle ein kostenloses Konto auf themoviedb.org.\n2. Öffne Settings › API und beantrage einen API-Schlüssel (persönliche Nutzung).\n3. Kopiere das „API Read Access Token“ und füge es hier ein.</string>
     <string name="services_title">Streaming-Apps</string>
     <string name="services_summary">Welche TV-App jeden Dienst öffnet</string>
     <string name="services_body">Der Fernseher findet die App jedes Dienstes selbst. Ändere sie hier, wenn sich eine Sendung nicht öffnet.</string>
@@ -83,7 +77,7 @@
     <string name="theme_dark">Dunkel</string>
     <string name="dynamic_color">Dynamische Farben</string>
     <string name="dynamic_color_summary">Farben deines Hintergrundbilds verwenden</string>
-    <string name="tvmaze_attribution">Sendezeiten von TVmaze</string>
+    <string name="tvmaze_attribution">Sendedaten von TVmaze</string>
     <string name="tv_row_all">Alle</string>
     <string name="tv_connect_phone">Handy verbinden</string>
     <string name="tv_connect_phone_summary">Den Code zeigen, den du mit TV Favorites auf dem Handy scannst</string>
@@ -100,4 +94,8 @@
     <string name="tv_rows_body">Die Reihe „Alle“ kommt von selbst. Android fragt für jede weitere Reihe einmal.</string>
     <string name="tv_rows_none">Noch keine Reihen: sie erscheinen, sobald die Liste Favoriten hat.</string>
     <string name="tv_rows_add">Zum Startbildschirm hinzufügen</string>
+    <plurals name="favorites_count">
+        <item quantity="one">%d Favorit</item>
+        <item quantity="other">%d Favoriten</item>
+    </plurals>
 </resources>

@@ -3,13 +3,9 @@ package to.wim.tvfavorites.ui.phone
 import android.content.Intent
 import androidx.core.net.toUri
 import android.os.Build
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -21,13 +17,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
@@ -41,9 +34,7 @@ import to.wim.tvfavorites.data.Settings
 import to.wim.tvfavorites.data.ThemeMode
 import to.wim.tvfavorites.data.await
 import to.wim.tvfavorites.logic.Pairing
-import to.wim.tvfavorites.logic.Tmdb
 import to.wim.tvfavorites.ui.theme.AppearanceSettings
-import to.wim.tvfavorites.ui.theme.ExpandableSetting
 import to.wim.tvfavorites.ui.theme.SettingItem
 import to.wim.tvfavorites.ui.theme.SettingsBlock
 import to.wim.tvfavorites.ui.theme.SettingsFooter
@@ -58,6 +49,7 @@ fun SettingsScreen(
     device: DeviceState,
     onBack: () -> Unit,
     onServices: () -> Unit,
+    onGroupOrder: () -> Unit,
 ) {
     val context = LocalContext.current
     val resources = LocalResources.current
@@ -66,11 +58,9 @@ fun SettingsScreen(
     val snackbar = remember { SnackbarHostState() }
     val connection by app.library.connection.collectAsStateWithLifecycle()
     val library by app.library.library.collectAsStateWithLifecycle()
-    var editingToken by rememberSaveable { mutableStateOf(false) }
     var confirmLeave by rememberSaveable { mutableStateOf(false) }
     var busy by remember { mutableStateOf(false) }
-    val sharedToken = library?.tmdbToken.orEmpty()
-    val token = device.tmdbToken.ifBlank { sharedToken }
+    val groupCount = library?.favorites.orEmpty().map { it.serviceId }.distinct().size
     val version = rememberAppVersion()
 
     fun scan() {
@@ -124,15 +114,6 @@ fun SettingsScreen(
                         )
                     }
                 }
-                SettingItem(
-                    title = stringResource(R.string.tmdb_title),
-                    summary = stringResource(if (token.isBlank()) R.string.tmdb_summary_missing else R.string.tmdb_summary_set),
-                    onClick = { editingToken = true },
-                    icon = painterResource(R.drawable.ic_key),
-                )
-                ExpandableSetting(key = "tmdb_steps", title = stringResource(R.string.tmdb_steps_title)) {
-                    Text(stringResource(R.string.tmdb_steps), style = MaterialTheme.typography.bodyMedium)
-                }
             }
         }
         item {
@@ -142,6 +123,13 @@ fun SettingsScreen(
                     summary = null,
                     checked = settings.groupByService,
                     onCheckedChange = { scope.launch { app.settings.setGroupByService(it) } },
+                )
+                SettingItem(
+                    title = stringResource(R.string.group_order_title),
+                    summary = stringResource(R.string.group_order_summary),
+                    onClick = onGroupOrder,
+                    enabled = groupCount > 1,
+                    trailing = { Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = null) },
                 )
                 SettingItem(
                     title = stringResource(R.string.services_title),
@@ -170,25 +158,12 @@ fun SettingsScreen(
         item {
             SettingsFooter(stringResource(R.string.footer, stringResource(R.string.app_name), version)) {
                 TextButton(onClick = {
-                    runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, "https://www.themoviedb.org".toUri())) }
-                }) { Text(stringResource(R.string.tmdb_attribution)) }
-                TextButton(onClick = {
                     runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, "https://www.tvmaze.com".toUri())) }
                 }) { Text(stringResource(R.string.tvmaze_attribution)) }
             }
         }
     }
 
-    if (editingToken) {
-        TokenDialog(
-            initial = device.tmdbToken,
-            onDismiss = { editingToken = false },
-            onSave = {
-                editingToken = false
-                scope.launch { app.library.setTmdbToken(it) }
-            },
-        )
-    }
     if (confirmLeave) {
         AlertDialog(
             onDismissRequest = { confirmLeave = false },
@@ -203,35 +178,4 @@ fun SettingsScreen(
             dismissButton = { TextButton(onClick = { confirmLeave = false }) { Text(stringResource(R.string.action_cancel)) } },
         )
     }
-}
-
-@Composable
-fun TokenDialog(
-    initial: String,
-    onDismiss: () -> Unit,
-    onSave: (String) -> Unit,
-) {
-    var text by rememberSaveable { mutableStateOf(initial) }
-    val valid = text.isBlank() || Tmdb.looksLikeToken(text)
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.tmdb_title)) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(stringResource(R.string.tmdb_dialog_body), style = MaterialTheme.typography.bodyMedium)
-                OutlinedTextField(
-                    value = text,
-                    onValueChange = { text = it.trim() },
-                    label = { Text(stringResource(R.string.tmdb_field)) },
-                    singleLine = true,
-                    isError = !valid,
-                    supportingText = if (!valid) ({ Text(stringResource(R.string.tmdb_invalid)) }) else null,
-                    visualTransformation = PasswordVisualTransformation(),
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
-        },
-        confirmButton = { TextButton(onClick = { onSave(text) }, enabled = valid) { Text(stringResource(R.string.action_save)) } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) } },
-    )
 }

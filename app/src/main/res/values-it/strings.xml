@@ -17,7 +17,6 @@
     <string name="action_move_up">Sposta su</string>
     <string name="action_move_down">Sposta giù</string>
     <string name="action_group_by_service">Raggruppa per servizio</string>
-    <string name="action_one_list">Mostra come un unico elenco</string>
     <string name="action_refresh_details">Cerca di nuovo</string>
     <string name="section_expanded">Espanso</string>
     <string name="section_collapsed">Compresso</string>
@@ -32,10 +31,14 @@
     <string name="field_description">Descrizione</string>
     <string name="field_link">Link</string>
     <string name="field_picture">Immagine (link)</string>
-    <string name="field_poster">Locandina (link)</string>
+    <string name="group_order_title">Ordine dei servizi</string>
+    <string name="group_order_summary">L\'ordine dei gruppi e delle righe sulla TV</string>
+    <string name="group_order_body">Anche l\'ordine delle righe sulla TV, dopo “Tutti”.</string>
+    <string name="tv_row_order_title">Ordine delle righe</string>
+    <string name="tv_row_order_body">Seleziona una riga, spostala con ▲ ▼ e premi OK per finire. I gruppi sul telefono seguono.</string>
+    <string name="tv_row_moving">▲ ▼ per spostare, OK per finire</string>
     <string name="field_service">Servizio di streaming</string>
     <string name="refresh_failed">Impossibile cercare questo link</string>
-    <string name="tmdb_hint">Con un token TMDB nelle impostazioni vengono aggiunte locandine e date di messa in onda.</string>
     <string name="last_aired">Ultima messa in onda %1$s</string>
     <string name="delete_title">Eliminare il preferito?</string>
     <string name="delete_body">%1$s verrà rimosso dal telefono e dalla TV.</string>
@@ -58,15 +61,6 @@
     <string name="unpair_title">Scollega dalla TV</string>
     <string name="unpair_body">La lista resta su questo telefono e la TV conserva la sua copia.</string>
     <string name="unpair_action">Scollega</string>
-    <string name="tmdb_title">Token TMDB</string>
-    <string name="tmdb_summary_missing">Non impostato: per locandine e date di messa in onda</string>
-    <string name="tmdb_summary_missing_tv">Non impostato: inseriscilo sul telefono, viene condiviso con questa TV</string>
-    <string name="tmdb_summary_set">Impostato</string>
-    <string name="tmdb_dialog_body">Il tuo “API Read Access Token” di themoviedb.org. Viene condiviso con la TV collegata, così la TV aggiorna da sola le date di messa in onda.</string>
-    <string name="tmdb_tv_body">Più semplice sul telefono: un token inserito lì viene condiviso con questa TV.</string>
-    <string name="tmdb_invalid">Incolla il lungo “API Read Access Token”, non la chiave API breve</string>
-    <string name="tmdb_steps_title">Come ottenere un token TMDB</string>
-    <string name="tmdb_steps">1. Crea un account gratuito su themoviedb.org.\n2. Apri Settings › API e richiedi una chiave API (uso personale).\n3. Copia il “API Read Access Token” e incollalo qui.</string>
     <string name="services_title">App di streaming</string>
     <string name="services_summary">Quale app TV apre ogni servizio</string>
     <string name="services_body">La TV trova da sola l\'app di ogni servizio. Cambiala qui se un programma non si apre.</string>
@@ -83,7 +77,7 @@
     <string name="theme_dark">Scuro</string>
     <string name="dynamic_color">Colori dinamici</string>
     <string name="dynamic_color_summary">Usa i colori dello sfondo</string>
-    <string name="tvmaze_attribution">Orari di messa in onda da TVmaze</string>
+    <string name="tvmaze_attribution">Date di messa in onda da TVmaze</string>
     <string name="tv_row_all">Tutti</string>
     <string name="tv_connect_phone">Collega telefono</string>
     <string name="tv_connect_phone_summary">Mostra il codice da scansionare con TV Favorites sul telefono</string>
@@ -100,4 +94,9 @@
     <string name="tv_rows_body">La riga “Tutti” viene aggiunta da sola. Android chiede una volta per ogni riga in più.</string>
     <string name="tv_rows_none">Nessuna riga ancora: compaiono quando la lista ha dei preferiti.</string>
     <string name="tv_rows_add">Aggiungi alla schermata Home</string>
+    <plurals name="favorites_count">
+        <item quantity="one">%d preferito</item>
+        <item quantity="many">%d preferiti</item>
+        <item quantity="other">%d preferiti</item>
+    </plurals>
 </resources>

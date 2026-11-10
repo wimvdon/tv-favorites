@@ -22,10 +22,9 @@ data class Settings(
     val groupByService: Boolean = false,
 )
 
-/** This device only, never backed up: the paired household, the TMDB token, home screen channel ids. */
+/** This device only, never backed up: the paired household and the home screen channel ids. */
 data class DeviceState(
     val household: Household? = null,
-    val tmdbToken: String = "",
     /** Home screen channel id per channel key ("all" or a service id), as "key=id;key=id". */
     val channels: Map<String, Long> = emptyMap(),
 )
@@ -47,7 +46,6 @@ class SettingsStore(private val context: Context) {
         val groupByService = booleanPreferencesKey("group_by_service")
         val householdId = stringPreferencesKey("household_id")
         val joinKey = stringPreferencesKey("join_key")
-        val tmdbToken = stringPreferencesKey("tmdb_token")
         val channels = stringPreferencesKey("channels")
     }
 
@@ -81,8 +79,6 @@ class SettingsStore(private val context: Context) {
             }
         }
 
-    suspend fun setTmdbToken(value: String) = context.deviceStore.edit { it[Keys.tmdbToken] = value.trim() }
-
     suspend fun setChannels(value: Map<String, Long>) = context.deviceStore.edit { it[Keys.channels] = encodeChannels(value) }
 
     companion object {
@@ -100,7 +96,6 @@ class SettingsStore(private val context: Context) {
             val key = p[Keys.joinKey]
             return DeviceState(
                 household = if (id != null && key != null) Household(id, key) else null,
-                tmdbToken = p[Keys.tmdbToken].orEmpty(),
                 channels = decodeChannels(p[Keys.channels]),
             )
         }

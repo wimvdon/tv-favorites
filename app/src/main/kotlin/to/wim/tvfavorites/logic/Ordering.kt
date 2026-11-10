@@ -51,11 +51,30 @@ object Ordering {
         }
     }
 
-    /** One group per service, in the order its first favorite appears. */
-    fun groups(items: List<Favorite>, nameOf: (String) -> String = ServiceCatalog::nameOf): List<ServiceGroup> =
-        sorted(items)
-            .groupBy { it.serviceId }
-            .map { (id, list) -> ServiceGroup(id, nameOf(id), list) }
+    /**
+     * One group per service: in the user's [order] first, then the others in the order their
+     * first favorite appears.
+     */
+    fun groups(
+        items: List<Favorite>,
+        nameOf: (String) -> String = ServiceCatalog::nameOf,
+        order: List<String> = emptyList(),
+    ): List<ServiceGroup> {
+        val natural = sorted(items).groupBy { it.serviceId }.map { (id, list) -> ServiceGroup(id, nameOf(id), list) }
+        val rank = order.withIndex().associate { (i, id) -> id to i }
+        return natural.withIndex().sortedWith(compareBy({ rank[it.value.serviceId] ?: Int.MAX_VALUE }, { it.index })).map { it.value }
+    }
+
+    /**
+     * The new group order after moving the group at [from] to [to] ([shown] is the groups as
+     * shown now). Services without favorites keep their place at the end of the stored order,
+     * so they come back where they were when a favorite of theirs is added again.
+     */
+    fun moveGroup(shown: List<String>, stored: List<String>, from: Int, to: Int): List<String> {
+        if (from !in shown.indices || to !in shown.indices || from == to) return stored
+        val moved = shown.toMutableList().apply { add(to, removeAt(from)) }
+        return moved + stored.filterNot { it in moved }
+    }
 
     /** [incoming] without the favorites whose link is already in [existing]. */
     fun withoutDuplicates(existing: List<Favorite>, incoming: List<Favorite>): List<Favorite> {

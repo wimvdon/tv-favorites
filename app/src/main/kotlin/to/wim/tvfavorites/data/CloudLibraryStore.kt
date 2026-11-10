@@ -30,26 +30,26 @@ class CloudLibraryStore(
     private val root get() = db.collection("households").document(household.id)
     private val favorites get() = root.collection("favorites")
     private val services get() = root.collection("settings").document("services")
-    private val tmdb get() = root.collection("settings").document("tmdb")
+    private val groups get() = root.collection("settings").document("groups")
 
     override val library: Flow<Library> =
-        combine(favoritesFlow(), overridesFlow(), tokenFlow()) { items, overrides, token -> Library(items, overrides, token) }
+        combine(favoritesFlow(), overridesFlow(), groupOrderFlow()) { items, overrides, order -> Library(items, overrides, order) }
 
-    private fun tokenFlow(): Flow<String> =
+    private fun groupOrderFlow(): Flow<List<String>> =
         callbackFlow {
             val registration =
-                tmdb.addSnapshotListener { snapshot, error ->
+                groups.addSnapshotListener { snapshot, error ->
                     if (error != null) {
                         close(error)
                         return@addSnapshotListener
                     }
-                    trySend(snapshot?.getString("token").orEmpty())
+                    trySend((snapshot?.get("order") as? List<*>)?.filterIsInstance<String>().orEmpty())
                 }
             awaitClose { registration.remove() }
         }
 
-    override suspend fun setTmdbToken(token: String) {
-        tmdb.set(mapOf("token" to token.trim())).await()
+    override suspend fun setGroupOrder(order: List<String>) {
+        groups.set(mapOf("order" to order)).await()
     }
 
     private fun favoritesFlow(): Flow<List<Favorite>> =
@@ -147,12 +147,11 @@ class CloudLibraryStore(
                 url = url,
                 serviceId = doc.getString("serviceId").orEmpty().ifEmpty { "other" },
                 description = doc.getString("description").orEmpty(),
-                posterUrl = doc.getString("posterUrl").orEmpty(),
-                imageUrl = doc.getString("imageUrl").orEmpty(),
+                // Favorites saved by 0.1.x may only have a (TMDB) poster.
+                imageUrl = doc.getString("imageUrl").orEmpty().ifEmpty { doc.getString("posterUrl").orEmpty() },
                 position = doc.getLong("position") ?: 0,
                 addedAt = doc.getLong("addedAt") ?: 0,
-                tmdbId = doc.getLong("tmdbId") ?: 0,
-                tmdbType = doc.getString("tmdbType").orEmpty(),
+                tvMazeId = doc.getLong("tvMazeId") ?: 0,
                 lastAired = doc.getString("lastAired").orEmpty(),
                 lastEpisode = doc.getString("lastEpisode").orEmpty(),
                 checkedAt = doc.getLong("checkedAt") ?: 0,
@@ -165,12 +164,10 @@ class CloudLibraryStore(
                 "url" to f.url,
                 "serviceId" to f.serviceId,
                 "description" to f.description,
-                "posterUrl" to f.posterUrl,
                 "imageUrl" to f.imageUrl,
                 "position" to f.position,
                 "addedAt" to f.addedAt,
-                "tmdbId" to f.tmdbId,
-                "tmdbType" to f.tmdbType,
+                "tvMazeId" to f.tvMazeId,
                 "lastAired" to f.lastAired,
                 "lastEpisode" to f.lastEpisode,
                 "checkedAt" to f.checkedAt,

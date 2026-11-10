@@ -228,7 +228,8 @@ app apart from their package (and `R` import) lines. Copy a change to the other 
 
 - Icon: a heart with a white play button, gradient `#FF7AA8` → `#E83A7A` → `#A82BC4`. Seed
   `#E83A7A` for the fallback palette.
-- Signature element: the pictures of the shows. On the phone a poster in each row, on the TV
+- Signature element: the services' own pictures of the shows, always landscape (16:9). On the
+  phone a 16:9 thumbnail in each row, on the TV
   16:9 cards in rows ("All", then one per service), as on the Android TV home screen.
 - The TV is always dark and uses TV Material (focus scale and glow) for everything you can focus;
   text fields and dialogs reuse Material 3 with the same colours.
