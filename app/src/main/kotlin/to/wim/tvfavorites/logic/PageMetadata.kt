@@ -9,11 +9,17 @@ data class PageMetadata(
     val description: String = "",
     val imageUrl: String = "",
     val siteName: String = "",
+    /**
+     * The page's own link to itself, as it declares it for apps (`al:android:url`) or sharing
+     * (`og:url`, `<link rel="canonical">`), or empty.
+     */
+    val canonicalUrl: String = "",
 )
 
 object PageMetadataParser {
     private val metaTag = Regex("""<meta\b[^>]*>""", setOf(RegexOption.IGNORE_CASE))
     private val attribute = Regex("""([a-zA-Z:_-]+)\s*=\s*("([^"]*)"|'([^']*)')""")
+    private val canonicalLink = Regex("""<link\b[^>]*rel=["']canonical["'][^>]*href=["']([^"']+)["']""", RegexOption.IGNORE_CASE)
     private val titleTag = Regex("""<title[^>]*>([\s\S]*?)</title>""", RegexOption.IGNORE_CASE)
 
     /** Reads the page's own description of itself. Relative image links are made absolute with [pageUrl]. */
@@ -40,6 +46,11 @@ object PageMetadataParser {
             description = description.collapseSpaces(),
             imageUrl = absolute(image, pageUrl),
             siteName = meta["og:site_name"].orEmpty(),
+            canonicalUrl =
+                listOfNotNull(meta["al:android:url"], meta["al:web:url"], meta["og:url"], canonicalLink.find(head)?.groupValues?.get(1))
+                    .map { absolute(decodeEntities(it), pageUrl) }
+                    .firstOrNull { it.startsWith("https://") }
+                    .orEmpty(),
         )
     }
 
@@ -73,6 +84,8 @@ object PageMetadataParser {
 }
 
 object Titles {
+    private val season = Regex("""(seizoen|season|saison|staffel|temporada|stagione|serie|series|reeks)\s*\d+""", RegexOption.IGNORE_CASE)
+
     /** Words around a title that streaming sites add to their page titles. */
     private val prefixes =
         listOf(
@@ -97,6 +110,11 @@ object Titles {
             for (suffix in listOf(" on $name", " op $name", " sur $name", " auf $name", " su $name", " en $name")) {
                 if (t.endsWith(suffix, ignoreCase = true)) t = t.dropLast(suffix.length)
             }
+        }
+        // "Mijn Restaurant - Seizoen 2" is a favorite of the show, not of one season.
+        for (separator in listOf(" | ", " - ", " – ", " — ", " · ", ": ")) {
+            val parts = t.split(separator)
+            if (parts.size > 1) t = parts.filterNot { season.matches(it.trim()) }.ifEmpty { parts.take(1) }.joinToString(separator)
         }
         prefixes.firstOrNull { t.startsWith(it, ignoreCase = true) }?.let { t = t.drop(it.length) }
         t = t.trim().trim('"', '“', '”', '\'', '‘', '’').trim()

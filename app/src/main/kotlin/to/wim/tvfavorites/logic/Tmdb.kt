@@ -143,7 +143,8 @@ object DraftBuilder {
      * adds a poster and fills an empty description or picture.
      */
     fun build(link: SharedLink, finalUrl: String, page: PageMetadata?, match: TmdbTitle? = null): Draft {
-        val url = finalUrl.ifBlank { link.url }
+        // Never a consent wall's address: the page's own link or the shared one.
+        val url = ConsentGate.chooseLink(link.url, finalUrl.ifBlank { link.url }, page?.canonicalUrl.orEmpty())
         val service = ServiceCatalog.match(url) ?: ServiceCatalog.match(link.url)
         val serviceId = service?.id ?: ServiceCatalog.serviceIdFor(url)
         val serviceName = service?.name ?: ServiceCatalog.nameOf(serviceId)

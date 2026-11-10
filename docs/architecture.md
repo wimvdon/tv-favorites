@@ -53,6 +53,16 @@ firebase/               Firestore rules and config (deployed with the Firebase C
 - The Firebase API key comes from the `FIREBASE_API_KEY` repository secret (CI) or
   `-PfirebaseApiKey` (local). Without it `Connection.Unavailable`: the app works on one device.
 
+## Reading a shared link
+`DetailsFetcher` reads the shared page as a link-preview bot first (sites fill in their preview
+tags for those and usually let them past cookie walls), then as a browser. `ConsentGate`
+recognises cookie and privacy walls on any site, by their address (`consent.`, `/privacy-gate`,
+`cookiewall`, …) or by a title about privacy or cookies without a picture. The app never accepts
+consent itself: it ignores the wall, tries the page the wall would return to (any link in its
+query parameters), and never stores the wall's address (`ConsentGate.chooseLink` keeps the page's
+own `al:android:url`/`og:url`, or the shared link). Titles lose the site's name and a season part
+("Seizoen 2"); a link's path gives a last-resort title ("mijn-restaurant~<id>" → "Mijn Restaurant").
+
 ## Opening a favorite on the TV
 `DeepLinks.findApp`: the app picked in Settings › Streaming apps, else a known package, else an
 installed TV app whose name matches the service. `DeepLinks.plan` then tries, in order: the
