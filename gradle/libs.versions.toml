@@ -2,13 +2,13 @@
 # Dependabot keeps these up to date (see .github/dependabot.yml).
 
 [versions]
-agp = "9.4.1"
+agp = "9.5.1"
 kotlin = "2.4.21"
 coreKtx = "1.19.1"
 activityCompose = "1.13.0"
 composeBom = "2026.09.00"
 # Not used by the template app. Use DataStore when the app needs to store settings or small data.
-datastore = "1.2.1"
+datastore = "1.3.0"
 junit = "4.13.2"
 
 [libraries]
