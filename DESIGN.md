@@ -226,5 +226,12 @@ app apart from their package (and `R` import) lines. Copy a change to the other 
 
 ## This app
 
-Each app replaces this section with its own rules: the seed colour of its theme and its
-signature element.
+- Icon: a heart with a white play button, gradient `#FF7AA8` → `#E83A7A` → `#A82BC4`. Seed
+  `#E83A7A` for the fallback palette.
+- Signature element: the pictures of the shows. On the phone a poster in each row, on the TV
+  16:9 cards in rows ("All", then one per service), as on the Android TV home screen.
+- The TV is always dark and uses TV Material (focus scale and glow) for everything you can focus;
+  text fields and dialogs reuse Material 3 with the same colours.
+- Reordering on the TV has no drag handle: long press › Move, then ◀ ▶ and OK (the card shows a
+  border and the hint while it moves).
+- Icons are Material's (filled) paths as vector drawables, as there is no icon library.

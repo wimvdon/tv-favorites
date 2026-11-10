@@ -21,7 +21,15 @@ python3 -m unittest discover -s scripts/tests
 
 ### Writing unit tests
 - Every logic change gets a test. Put logic in plain Kotlin classes (no Android types) and test
-  them with JUnit in `app/src/test/kotlin/`, mirroring the package. See `TapCounterTest`.
+  them with JUnit in `app/src/test/kotlin/`, mirroring the package.
+- What is covered: shared text and link cleaning (`SharedTextTest`), page tags and title cleaning
+  (`PageMetadataTest`), TMDB/TVmaze parsing, matching and building a new favorite (`TmdbTest`),
+  air date choice, refresh timing and time zones (`AiringTest`), service detection, finding the TV
+  app and the order of links tried (`DeepLinksTest`), reordering and grouping (`OrderingTest`),
+  pairing codes (`PairingTest`), home screen rows (`ChannelPlanTest`), the local list file and
+  stored channel ids (`LocalLibraryStoreTest`), backup rules (`BackupRulesTest`).
+- Not covered by unit tests (needs a device): Firestore sync, the QR scanner, starting other apps,
+  the TV home screen. Check those by hand (below).
 - Test names describe behaviour in words: `` fun `tap stops at the maximum`() ``.
 - No device tests (instrumented/UI tests) are set up: they need an emulator, which makes CI slow and
   flaky. Add them only if a decision in `decisions.md` says so.
@@ -34,7 +42,10 @@ description. In addition, check every now and then (always before a release):
 
 - [ ] The app starts, and the changed screen looks right.
 - [ ] **Dark mode**: switch the phone's dark theme on/off. Text stays readable.
-- [ ] **Rotation** (if auto-rotate is on): the screen still works and keeps its state (e.g. the tap count).
+- [ ] **Rotation** (if auto-rotate is on): the screen still works and keeps its state (e.g. a half-edited favorite).
+- [ ] **Share** a show from VRT MAX, VTM GO, GoPlay and Netflix: title, picture and service are right.
+- [ ] **TV**: pair with the phone, open a favorite of each service, move one with ◀ ▶, check the
+      home screen row "All" and add a service row.
 - [ ] **Language**: Settings → System → Languages → App languages → this app → Nederlands.
       All text is translated.
 - [ ] **Large text**: Settings → Display → Font size at maximum. Nothing is cut off.

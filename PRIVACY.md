@@ -1,17 +1,42 @@
 # Privacy policy
 
-_Last updated: 2026-10-15_
+_Last updated: 2026-11-10_
 
-**This app collects nothing.**
+TV Favorites keeps a list of shows and movies you saved, on your phone and the TV it is paired
+with. It has no account, no analytics, no advertising and no crash reporting.
 
-- It does not collect, store, or share any personal data.
-- It has no internet access, no analytics, no advertising and no crash reporting.
-- It requests no Android permissions.
-- Anything the app may keep in the future stays on your device. Only your settings may be
-  included in Android's own backup (to your Google account, if you turned that on) and in a
-  transfer to a new phone; nothing else is.
+## What is stored, and where
 
-If this changes, this file will be updated **before** the change is released, describing what is
-collected, why, where it is stored, and how to delete it.
+- **Your favorites** (title, description, picture links, the link you shared, the streaming
+  service, the last aired episode), **per-service settings** (which TV app opens a service, a link
+  pattern) and, if you entered one, **your TMDB token**:
+  - before pairing: in a file on your phone only;
+  - once a phone and a TV are paired: in Google Firebase (Cloud Firestore, region `europe-west1`,
+    Belgium), in a "household" that only the paired devices can read or change. Each device signs
+    in to Firebase anonymously; no name, e-mail address or Google account is involved. The TMDB
+    token is shared so the TV can keep air dates up to date without the phone.
+- **On each device only**: which household it belongs to, the TMDB token you typed on that device,
+  and the ids of the TV's home screen rows.
+- **Backed up by Android** (to your Google account, if you turned that on, and when moving to a new
+  phone): only your appearance settings and whether the list is grouped by service.
+
+Anyone who scans the TV's pairing code can see and change the list. Scan it only with your own
+phones.
+
+## Which services the app contacts
+
+- **The page you share** (for example `vrt.be` or `netflix.com`), once, to read its title,
+  description and picture, as a browser would.
+- **TMDB** (`api.themoviedb.org`), only with your own token: the title, to find its poster, and the
+  TMDB id, to find when the latest episode aired.
+- **TVmaze** (`api.tvmaze.com`, no account): the show's IMDb id, for the exact time the latest
+  episode aired.
+- **Google Firebase**, for the anonymous sign-in and the shared list.
+- **Picture hosts** (TMDB, the streaming services) to show posters.
+
+## Removing your data
+
+- On the phone: Settings › Disconnect from TV, then uninstall the app.
+- On the TV: uninstall the app. A household nobody uses can be removed by the developer on request.
 
 Questions: open an issue in this repository.
