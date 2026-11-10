@@ -53,6 +53,10 @@ jobs:
 
       - name: Build debug and release APKs
         # The release build is unsigned here; building it catches R8/shrinking problems early.
+        env:
+          # Turns on sync between phone and TV (see app/build.gradle.kts). Without the secret
+          # the APKs still build, with sync off.
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
         run: ./gradlew assembleDebug assembleRelease
 
       - name: Name the debug APK

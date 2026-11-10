@@ -85,3 +85,29 @@ Without a `LICENSE` file the legal default is already all rights reserved, but t
 - **No lint baseline:** the template has zero lint issues.
 - **Play Store upload** is prepared but commented out in `release.yml` until a Play Console app and
   service account exist.
+
+## 2026-11-10: TV Favorites from the template
+
+- **minSdk 26 (Android 8.0)** instead of 31: many Android TVs still run Android 9 to 11. Dynamic
+  color stays an option on Android 12+. `backup_rules.xml` covers backup on Android 8-11.
+- **One APK for phone and TV** (`leanback` and `touchscreen` not required), screens chosen at
+  run time. Keeps one module, one release and one Firebase setup.
+- **Sync with Firebase (Auth anonymous + Cloud Firestore)**, owner's choice: a TV shows a QR code,
+  phones join with it. No server code to run; Firestore's offline copy keeps the app usable without
+  network. Project `tv-favorites`, region `europe-west1`. Configured in code (`FirebaseOptions`)
+  instead of the `google-services` plugin and `google-services.json`, so no API key is committed;
+  the key is the `FIREBASE_API_KEY` secret. Rules in `firebase/firestore.rules`.
+- **New libraries** (approved by the owner): TV Material (`androidx.tv:tv-material`), Firebase BoM
+  (auth, firestore), OkHttp and kotlinx.serialization (page and API reads, local file), Coil
+  (posters), ZXing core (QR code on the TV), Google code scanner (`play-services-code-scanner`: no
+  camera permission needed), lifecycle-runtime-compose, DataStore.
+- **Details from the shared page first** (Open Graph tags; a link-preview user agent as second
+  try), then **TMDB** with the user's own token for posters and air dates, **TVmaze** (no key) for
+  the exact air time. Only an exact title match fills in TMDB data, so a wrong poster is never added.
+- **The TV works on its own**, owner's choice: the TMDB token is shared through the household, and
+  the TV refreshes air dates and home screen rows itself (JobScheduler, about hourly).
+- **Opening on the TV** tries several links and then the app's start screen; the TV app is found
+  by package or by name, so renamed packages keep working. Per-service overrides for the rest.
+- **Home screen rows** with the platform `TvContract` API (no `tvprovider` library). Only "All" is
+  shown by itself; per-service rows need the user's approval, which Android asks per row.
+- **Icons as vector drawables** (no `material-icons-extended`, to avoid a large dependency).

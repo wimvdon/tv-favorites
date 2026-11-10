@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The Android TV launcher banner (320 × 180 dp): the icon's heart on the gradient. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="320dp"
+    android:height="180dp"
+    android:viewportWidth="320"
+    android:viewportHeight="180">
+    <path android:pathData="M0,0h320v180h-320z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="0"
+                android:startY="0"
+                android:endX="320"
+                android:endY="180">
+                <item android:color="#FFFF7AA8" android:offset="0" />
+                <item android:color="#FFE83A7A" android:offset="0.5" />
+                <item android:color="#FFA82BC4" android:offset="1" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <group android:translateX="100" android:translateY="36" android:scaleX="2" android:scaleY="2">
+        <group android:translateX="-24" android:translateY="-28">
+            <path
+                android:fillColor="#FFFFFFFF"
+                android:fillType="evenOdd"
+                android:pathData="M54,82 L30.5,58.5 C24,52 24,41.5 30.5,35 C37,28.5 47.5,28.5 54,35 C60.5,28.5 71,28.5 77.5,35 C84,41.5 84,52 77.5,58.5 Z M48,44.5 L48,62.5 L63.5,53.5 Z" />
+        </group>
+    </group>
+</vector>

@@ -178,6 +178,8 @@ jobs:
       - name: Build APK
         id: build
         env:
+          # Turns on sync between phone and TV (see app/build.gradle.kts).
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
           PUBLISH: ${{ steps.plan.outputs.publish }}
           SIGNED: ${{ steps.signing.outputs.signed }}
           VERSION: ${{ steps.plan.outputs.version }}

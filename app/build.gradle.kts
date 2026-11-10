@@ -3,13 +3,14 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 // ---------------------------------------------------------------------------
 // App identity: the ONE place to change the package / application ID.
 // (Also move the Kotlin sources in app/src/*/kotlin/ to the matching folder.)
 // ---------------------------------------------------------------------------
-val appId = "com.example.template"
+val appId = "to.wim.tvfavorites"
 
 // ---------------------------------------------------------------------------
 // Versioning
@@ -57,6 +58,21 @@ val appVersion: AppVersion = if (releaseVersionName != null || releaseVersionCod
 }
 
 // ---------------------------------------------------------------------------
+// Firebase (sync between phone and TV). Project `tv-favorites`; the app IDs are public.
+// The API key is not committed: pass -PfirebaseApiKey=... or set FIREBASE_API_KEY (CI uses the
+// repository secret of that name). Without it the app builds and works, but sync is off.
+// ---------------------------------------------------------------------------
+val firebaseProjectId = "tv-favorites"
+val firebaseReleaseAppId = "1:283263363436:android:2e6198b5a4933b6e266b49"
+val firebaseDebugAppId = "1:283263363436:android:f102f059eaf45295266b49"
+val firebaseApiKey: String =
+    (providers.gradleProperty("firebaseApiKey").orNull ?: providers.environmentVariable("FIREBASE_API_KEY").orNull)
+        .orEmpty()
+        .trim()
+
+fun quoted(value: String) = "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
+
+// ---------------------------------------------------------------------------
 // Release signing: only when keystore.properties exists. The release workflow
 // writes it at build time and deletes it afterwards. Never commit it.
 // ---------------------------------------------------------------------------
@@ -71,11 +87,13 @@ android {
 
     defaultConfig {
         applicationId = appId
-        // Android 12. See docs/decisions.md for why.
-        minSdk = 31
+        // Android 8.0: many Android TVs still run Android 9 to 11. See docs/decisions.md.
+        minSdk = 26
         targetSdk = 37
         versionCode = appVersion.code
         versionName = appVersion.name
+        buildConfigField("String", "FIREBASE_PROJECT_ID", quoted(firebaseProjectId))
+        buildConfigField("String", "FIREBASE_API_KEY", quoted(firebaseApiKey))
     }
 
     signingConfigs {
@@ -93,12 +111,14 @@ android {
         debug {
             // Lets a pull request's debug APK be installed next to the released app.
             applicationIdSuffix = ".debug"
+            buildConfigField("String", "FIREBASE_APP_ID", quoted(firebaseDebugAppId))
         }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = signingConfigs.findByName("release")
+            buildConfigField("String", "FIREBASE_APP_ID", quoted(firebaseReleaseAppId))
         }
     }
 
@@ -109,6 +129,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     androidResources {
@@ -135,6 +156,18 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.tv.material)
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.okhttp)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
+    implementation(libs.play.services.code.scanner)
+    implementation(libs.zxing.core)
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     testImplementation(libs.junit)

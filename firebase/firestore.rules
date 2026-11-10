@@ -1,0 +1,45 @@
+rules_version = '2';
+
+// One household per paired set of devices. Its ID and join key travel only in the
+// QR code shown on the TV. Each device signs in anonymously and joins by writing a
+// member document that carries the household's join key.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /households/{hid} {
+      function signedIn() { return request.auth != null; }
+      function isMember() {
+        return signedIn() &&
+          exists(/databases/$(database)/documents/households/$(hid)/members/$(request.auth.uid));
+      }
+
+      allow get: if isMember();
+      allow list: if false;
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['joinKey', 'createdAt'])
+        && request.resource.data.joinKey is string
+        && request.resource.data.joinKey.size() >= 20;
+      allow update, delete: if false;
+
+      match /members/{uid} {
+        allow read: if isMember();
+        allow create: if signedIn() && request.auth.uid == uid
+          && request.resource.data.key == get(/databases/$(database)/documents/households/$(hid)).data.joinKey;
+        allow update: if false;
+        allow delete: if signedIn() && request.auth.uid == uid;
+      }
+
+      match /favorites/{fid} {
+        allow read, delete: if isMember();
+        allow create, update: if isMember()
+          && request.resource.data.title is string
+          && request.resource.data.title.size() <= 500
+          && request.resource.data.url is string
+          && request.resource.data.url.size() <= 2000;
+      }
+
+      match /settings/{doc} {
+        allow read, write: if isMember();
+      }
+    }
+  }
+}

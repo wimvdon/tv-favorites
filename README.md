@@ -1,16 +1,19 @@
-# Android app template
+# TV Favorites
 
-A starting point for Android apps built with Claude Code and GitHub. Out of the box it
-**builds, tests and releases**. The only app content is a placeholder screen with a tap
-counter.
+Save shows and movies from any streaming service on your phone and watch them from your Android TV.
 
-- Kotlin, Jetpack Compose, Material 3 (light/dark, wallpaper colours), Android 12+.
-- CI on every pull request: unit tests, lint, debug and release builds, and an installable APK.
-- One-click signed releases on GitHub, with automatic version numbers.
-- Weekly dependency updates (Dependabot).
-- Rules for Claude Code sessions in [`CLAUDE.md`](CLAUDE.md).
+- **Phone:** in VRT MAX, VTM GO, GoPlay, Netflix or any other streaming app, tap **Share › TV
+  Favorites**. The app fills in the title, description and picture (and, with a free TMDB token,
+  the poster and when the latest episode aired). Reorder, group by service, edit and delete.
+- **TV:** your favorites in rows ("All" and per service), on the Android TV home screen too. Press
+  OK to open a show in its streaming app. Works on its own: the phone is only needed to add shows.
+- **Pairing:** on the TV, open **Connect phone**; on the phone, **Settings › Connect to TV** and scan
+  the code.
 
-> **New app from this template?** Start with [Using this template](#using-this-template).
+Kotlin, Jetpack Compose, Material 3 and TV Material, Firebase for the shared list. Android 8.0+.
+See the [privacy policy](PRIVACY.md) and [architecture](docs/architecture.md).
+
+Built from the Android app template: CI on every pull request, one-click signed releases.
 
 ---
 

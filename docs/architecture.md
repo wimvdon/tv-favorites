@@ -1,64 +1,88 @@
 # Architecture
 
-> Template skeleton. Fill in the "This app" section for each app and keep it up to date.
-
 ## This app
-_What the app does, its screens, and where its data lives. (Placeholder: one home screen with a tap counter. No stored data.)_
+TV Favorites saves shows and movies from any streaming service and opens them on an Android TV.
+
+- **Phone** (management): share a link from a streaming app (Share › TV Favorites) or paste one;
+  the app reads the page's title, description and picture, adds a TMDB poster and the last aired
+  episode, and saves it. The list can be reordered (drag handles), grouped by service, edited and
+  deleted. Settings: pairing with the TV (scan its QR code), the TMDB token, per-service app
+  settings, appearance.
+- **TV** (works on its own): one row "All" and one per service; OK opens the favorite in the
+  service's app, a long press opens Open / Move / Edit / Delete. The app keeps the Android TV home
+  screen rows ("All", and per service when the user adds them) and the air dates up to date
+  itself, also while closed (a job about every hour). It shows the QR code a phone scans.
+- One APK for both: `TvFavoritesApp.isTv` picks the TV or the phone screens.
 
 ## Structure
 ```
-app/src/main/kotlin/<package>/
-  MainActivity.kt          Entry point. Only sets up the theme and the first screen.
-  ui/theme/Theme.kt        Material 3 theme (light/dark, dynamic colour).
-  ui/<feature>/            One folder per screen/feature:
-    <Feature>Screen.kt       Composables: display state, forward clicks. No logic.
-    <Feature>….kt            Plain Kotlin logic (no Android types) → unit tested.
-app/src/main/res/
-  values/strings.xml       All user-visible text (English, the default).
-  values-xx/strings.xml    Dutch, French, German, Spanish and Italian. Every string must exist in every language.
-app/src/test/kotlin/       JVM unit tests (mirrors the main package structure).
-scripts/                   Release helpers (Python/Java) with their own tests.
-.github/workflows/         ci.yml (every PR), release.yml (signed releases).
+app/src/main/kotlin/to/wim/tvfavorites/
+  TvFavoritesApp.kt     Shared objects (HTTP client, settings, repository, Firebase), isTv.
+  model/                Favorite, ServiceOverride, Library (kotlinx.serialization).
+  logic/                Plain Kotlin, unit tested:
+    SharedText            The link and a title hint in shared text; tracking parameters removed.
+    PageMetadata          Open Graph / Twitter / <title> parsing; Titles cleans site names.
+    Tmdb                  TMDB search, match and last aired episode; TvMaze air times; DraftBuilder.
+    Airing                When to refresh air dates; date and time in the device's time zone.
+    Services              ServiceCatalog: known services, their hosts and TV apps.
+    DeepLinks             Which TV app opens a service and in which order links are tried.
+    Ordering              Sorting, moving (whole list or within a service), grouping.
+    Pairing               Household ids and the QR code's content.
+    ChannelPlan           The home screen rows and their tiles.
+  data/
+    LibraryStore          LocalLibraryStore (JSON file) and the interface.
+    CloudLibraryStore     Firestore: households/<id>/{members,favorites,settings}.
+    LibraryRepository     The list for the screens: local until paired, then the cloud; pairing.
+    DetailsFetcher        Reads shared pages (OkHttp), TMDB and TVmaze.
+    SettingsStore         DataStore: backed_up_settings and device_state.
+  launch/               Launcher (intents, following DeepLinks), OpenFavoriteActivity (home screen tiles).
+  tv/                   HomeChannels (TvContract rows), HomeChannelsJob, InitializeProgramsReceiver.
+  ui/                   MainActivity, phone/ screens, tv/ screens, theme/ (shared design kit).
+firebase/               Firestore rules and config (deployed with the Firebase CLI).
 ```
 
+## Sync
+- A **household** is a TV's list. The TV creates it at its first start (`ensureHousehold`) and
+  shows `tvfavorites://pair?h=<id>&k=<joinKey>` as a QR code. A phone joins by writing
+  `members/<its uid>` with the key; `firebase/firestore.rules` checks the key and only lets members
+  read or write. Devices sign in to Firebase anonymously.
+- Joining copies the phone's favorites (and service settings, TMDB token) into the TV's list,
+  without duplicate links. Disconnecting keeps a copy on the phone.
+- Firestore keeps a copy on the device, so the list works offline and catches up later. Writes
+  are not awaited by the screens.
+- The Firebase API key comes from the `FIREBASE_API_KEY` repository secret (CI) or
+  `-PfirebaseApiKey` (local). Without it `Connection.Unavailable`: the app works on one device.
+
+## Opening a favorite on the TV
+`DeepLinks.findApp`: the app picked in Settings › Streaming apps, else a known package, else an
+installed TV app whose name matches the service. `DeepLinks.plan` then tries, in order: the
+user's link pattern, the link rewritten for the service's app (Netflix, YouTube), the shared link,
+and finally the app's start screen (with a message that the show itself couldn't be opened).
+
+## Air dates
+With a TMDB match, `DetailsFetcher.airing` reads `/tv/<id>` (last episode, IMDb id) and TVmaze's
+previous episode (exact moment, UTC); `Airing.pick` prefers TVmaze unless it is behind TMDB. The
+moment is stored as ISO 8601 and shown in the device's time zone. Refreshed once a day per
+favorite, by the phone and by the TV (on start and in the hourly job).
+
 ## Conventions
-- **Single `app` module.** Split into modules only if the app grows large; record it in `decisions.md`.
-- **Logic in plain Kotlin classes** with no `Context`, `View` or Compose types, so it can be
-  tested on the JVM. Example: `ui/home/TapCounter.kt` (immutable; methods return a new value).
-- **UI state**: small screens use `rememberSaveable`. When a screen gets real logic or data,
-  add a `ViewModel` (`androidx.lifecycle:lifecycle-viewmodel-compose`) that exposes a
-  `StateFlow<UiState>` and calls into the plain-Kotlin logic. Record it in `decisions.md`.
-- **Navigation**: one screen today. With several screens, use Navigation Compose.
-- **Persistence**: Jetpack DataStore (version already in the catalog). Wrap it behind a small
-  repository interface so logic tests can use a fake. Decide per value whether it is backed up
-  (see "Backup" below).
-- **No network, analytics, crash reporting or ads** unless the owner agreed (see `CLAUDE.md`),
-  in which case update `PRIVACY.md`.
-- **Strings** in resources only; plurals via `<plurals>`.
-- **Versions** of libraries only in `gradle/libs.versions.toml`.
-- **App identity** (`applicationId`/`namespace`) only in `app/build.gradle.kts` (`appId`).
+- **Single `app` module.** Logic in plain Kotlin under `logic/`, tested on the JVM.
+- **UI state**: screens collect the repository's `StateFlow`s; navigation is a small back stack
+  (`PhoneApp`) or an enum (`TvApp`).
+- **TV screens** use TV Material (`androidx.tv.material3`) for focusable cards, buttons and list
+  items, and Material 3 for text fields; colours come from the same theme.
+- **Strings** in resources only, in all six languages.
+- **Icons** are vector drawables in `res/drawable` (no icon library).
 
 ## Backup
 Android backs up app data to the user's Google account (if they turned backup on) and copies it
-to a new phone during set-up. The app decides which files take part, in
-`app/src/main/res/xml/data_extraction_rules.xml` (`cloud-backup` = Google account,
-`device-transfer` = new phone). The rule is an **allow list**: only listed files are copied, so a
-new file is never backed up by accident.
+to a new phone during set-up. The rules are an **allow list**:
+`res/xml/data_extraction_rules.xml` (Android 12+) and `res/xml/backup_rules.xml` (Android 8-11),
+both listing only `datastore/backed_up_settings.preferences_pb`. `BackupRulesTest` checks all three.
 
-- **Backed up:** settings the user chose and would want back after a reset or on a new phone
-  (theme, layout, toggles, names). Keep them in one DataStore named `backed_up_settings`
-  (`preferencesDataStore(name = "backed_up_settings")`), which the rules already list.
-- **Not backed up:** sign-in tokens, passwords and API keys (security, and keys encrypted with the
-  Android Keystore can't be read on another phone anyway); state that only means something on this
-  phone (a running job, notification IDs, "switched on right now"); settings that only work after
-  a permission or set-up on this phone; copies of data an online service can download again; caches
-  (Android never backs up `cacheDir` and `noBackupFilesDir`). Keep these in another DataStore file.
-- Android rules work per **file**, not per key. Moving a value from one file to another in an app
-  that is already released needs a `DataMigration` (see Snoozer's `MoveKeysMigration`).
-- `BackupRulesTest` checks both sections list exactly the settings file. Change the test together
-  with the rules, and update `PRIVACY.md` when what is backed up changes.
-- **minSdk below 31:** Android 8-11 ignore `data_extraction_rules.xml` and read
-  `android:fullBackupContent` instead. Add `res/xml/backup_rules.xml` with the same `include` lines,
-  point `fullBackupContent` at it in the manifest, and let `BackupRulesTest` check it too.
-- To test on a phone: change a setting, then open Settings, search for "Backup" and tap **Back up now**. Uninstall the app and install the same APK again: the
-  setting comes back. Restore only works for an APK signed with the same key.
+- **Backed up** (`backed_up_settings`): theme, dynamic color, group by service.
+- **Not backed up** (`device_state` and files): the household id and join key, the TMDB token,
+  the home screen row ids, the local favorites file and Firestore's cache. Paired devices get their
+  list from the cloud again.
+- To test on a phone: change a setting, Settings › search "Backup" › **Back up now**, uninstall,
+  install the same APK again: the setting comes back.
