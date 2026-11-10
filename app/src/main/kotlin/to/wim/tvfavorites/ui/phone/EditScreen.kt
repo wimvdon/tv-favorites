@@ -299,12 +299,15 @@ private fun DetailsForm(
                                         current.copy(
                                             title = fresh.title.ifBlank { current.title },
                                             description = fresh.description.ifBlank { current.description },
-                                            posterUrl = fresh.posterUrl.ifBlank { current.posterUrl },
-                                            imageUrl = fresh.imageUrl.ifBlank { current.imageUrl },
-                                            tmdbId = if (fresh.tmdbId > 0) fresh.tmdbId else current.tmdbId,
-                                            tmdbType = fresh.tmdbType.ifBlank { current.tmdbType },
-                                            lastAired = fresh.lastAired.ifBlank { current.lastAired },
-                                            lastEpisode = fresh.lastEpisode.ifBlank { current.lastEpisode },
+                                            // Fresh pictures replace both old ones, so a wrong TMDB poster goes away.
+                                            posterUrl = if (fresh.posterUrl.isNotBlank() || fresh.imageUrl.isNotBlank()) fresh.posterUrl else current.posterUrl,
+                                            imageUrl = if (fresh.posterUrl.isNotBlank() || fresh.imageUrl.isNotBlank()) fresh.imageUrl else current.imageUrl,
+                                            // The stricter match may drop a wrong TMDB title, and its air dates with it.
+                                            // (Without a token TMDB wasn't asked, so what is known stays.)
+                                            tmdbId = if (tmdbToken.isBlank()) current.tmdbId else fresh.tmdbId,
+                                            tmdbType = if (tmdbToken.isBlank()) current.tmdbType else fresh.tmdbType,
+                                            lastAired = if (tmdbToken.isBlank()) current.lastAired else fresh.lastAired,
+                                            lastEpisode = if (tmdbToken.isBlank()) current.lastEpisode else fresh.lastEpisode,
                                         )
                                 } else {
                                     Toast.makeText(context, R.string.refresh_failed, Toast.LENGTH_SHORT).show()

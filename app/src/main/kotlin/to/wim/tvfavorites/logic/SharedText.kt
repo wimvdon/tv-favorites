@@ -58,6 +58,8 @@ object SharedText {
                 .split('/')
                 .map { runCatching { URLDecoder.decode(it, "UTF-8") }.getOrDefault(it) }
                 .map { it.substringBeforeLast('.') }
+                // "mijn-restaurant~f62bbb08-…": a readable slug with an id glued on after ~ (or :).
+                .map { part -> listOf('~', ':').fold(part) { acc, c -> if (acc.contains(c) && looksLikeId(acc.substringAfter(c))) acc.substringBefore(c) else acc } }
                 .lastOrNull { part ->
                     part.length > 2 &&
                         part.lowercase(Locale.ROOT) !in skip &&

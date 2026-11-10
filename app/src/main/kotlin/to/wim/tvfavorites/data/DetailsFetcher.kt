@@ -8,6 +8,7 @@ import okhttp3.Request
 import to.wim.tvfavorites.BuildConfig
 import to.wim.tvfavorites.logic.Draft
 import to.wim.tvfavorites.logic.Airing
+import to.wim.tvfavorites.logic.ConsentGate
 import to.wim.tvfavorites.logic.DraftBuilder
 import to.wim.tvfavorites.logic.PageMetadata
 import to.wim.tvfavorites.logic.PageMetadataParser
@@ -30,7 +31,10 @@ class DetailsFetcher(private val http: OkHttpClient) {
             val (finalUrl, page) = readPage(link.url)
             val draft = DraftBuilder.build(link, finalUrl, page)
             if (tmdbToken.isBlank() || draft.title.isBlank()) return@withContext draft
-            val match = runCatching { searchTmdb(draft.title, tmdbToken) }.getOrNull() ?: return@withContext draft
+            val service = ServiceCatalog.byId(draft.serviceId)
+            val match =
+                runCatching { searchTmdb(draft.title, tmdbToken, service?.countries.orEmpty(), service?.languages.orEmpty()) }.getOrNull()
+                    ?: return@withContext draft
             val airing = runCatching { airingOf(match.id, match.mediaType, tmdbToken) }.getOrNull()
             DraftBuilder.build(link, finalUrl, page, match).copy(lastAired = airing?.date.orEmpty(), lastEpisode = airing?.episode.orEmpty())
         }
@@ -76,21 +80,36 @@ class DetailsFetcher(private val http: OkHttpClient) {
                     .build(),
             ).execute()
 
-    /** The page after redirects, and what it says about itself (null when it couldn't be read). */
+    /**
+     * The page after redirects, and what it says about itself (null when it couldn't be read, or
+     * only a cookie or privacy wall answered). Link-preview bots are asked first: sites fill in
+     * their preview tags for them (that is what the tags are for) and usually let them past their
+     * consent walls. The app never accepts consent itself; past a wall it only tries the page the
+     * wall would return to.
+     */
     private fun readPage(url: String): Pair<String, PageMetadata?> {
-        val browser = "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Mobile Safari/537.36"
-        // Sites built as single-page apps often only fill in their preview tags for link-preview bots.
         val preview = "facebookexternalhit/1.1 (compatible; TV Favorites/${BuildConfig.VERSION_NAME})"
+        val browser = "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Mobile Safari/537.36"
         var best: Pair<String, PageMetadata?> = url to null
-        for (agent in listOf(browser, preview)) {
-            val result = runCatching { get(url, agent) }.getOrNull() ?: continue
-            val (finalUrl, html) = result
-            val page = PageMetadataParser.parse(html, finalUrl)
-            val serviceName = ServiceCatalog.match(finalUrl)?.name ?: ServiceCatalog.nameOf(ServiceCatalog.serviceIdFor(finalUrl))
-            best = finalUrl to page
-            if (!Titles.isGeneric(Titles.clean(page.title, serviceName, page.siteName), serviceName, page.siteName)) break
+        for (agent in listOf(preview, browser)) {
+            val (finalUrl, page) = readOne(url, agent) ?: continue
+            val usable =
+                if (ConsentGate.isGate(finalUrl, page)) {
+                    ConsentGate.returnUrl(finalUrl, url)?.let { back -> readOne(back, agent) }?.takeUnless { (f, p) -> ConsentGate.isGate(f, p) }
+                } else {
+                    finalUrl to page
+                } ?: continue
+            best = usable
+            val (usableUrl, usablePage) = usable
+            val serviceName = ServiceCatalog.match(usableUrl)?.name ?: ServiceCatalog.nameOf(ServiceCatalog.serviceIdFor(usableUrl))
+            if (usablePage != null && !Titles.isGeneric(Titles.clean(usablePage.title, serviceName, usablePage.siteName), serviceName, usablePage.siteName)) break
         }
         return best
+    }
+
+    private fun readOne(url: String, agent: String): Pair<String, PageMetadata?>? {
+        val (finalUrl, html) = runCatching { get(url, agent) }.getOrNull() ?: return null
+        return finalUrl to PageMetadataParser.parse(html, finalUrl)
     }
 
     private fun get(url: String, agent: String): Pair<String, String>? {
@@ -111,7 +130,12 @@ class DetailsFetcher(private val http: OkHttpClient) {
         }
     }
 
-    private fun searchTmdb(title: String, token: String): TmdbTitle? {
+    private fun searchTmdb(
+        title: String,
+        token: String,
+        countries: Set<String>,
+        languages: Set<String>,
+    ): TmdbTitle? {
         val locale = Locale.getDefault()
         val url =
             "${Tmdb.BASE_URL}/search/multi"
@@ -123,7 +147,7 @@ class DetailsFetcher(private val http: OkHttpClient) {
                 .build()
         tmdbRequest(url, token).use { response ->
             if (!response.isSuccessful) return null
-            return Tmdb.bestMatch(Tmdb.parseSearch(response.body.string()), title)
+            return Tmdb.bestMatch(Tmdb.parseSearch(response.body.string()), title, countries, languages)
         }
     }
 

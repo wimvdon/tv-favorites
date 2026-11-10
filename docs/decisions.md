@@ -111,3 +111,16 @@ Without a `LICENSE` file the legal default is already all rights reserved, but t
 - **Home screen rows** with the platform `TvContract` API (no `tvprovider` library). Only "All" is
   shown by itself; per-service rows need the user's approval, which Android asks per row.
 - **Icons as vector drawables** (no `material-icons-extended`, to avoid a large dependency).
+
+## 2026-11-10: Cookie and privacy walls
+
+Shared links of some sites (first seen with VTM GO, DPG Media's privacy gate) land on a consent
+wall for apps without a consent cookie. Handled for every site alike, not per service: recognise
+the wall, ask as a link-preview bot first, follow the wall's own return link, and keep the page's
+declared link. The app never accepts consent on the user's behalf.
+
+## 2026-11-10: The service's own pictures first
+
+The owner saw a wrong TMDB poster on a VRT MAX show whose page has its own pictures. Pictures now
+come from the shared page first and TMDB only fills in when the page has none; TMDB matching for
+regional services prefers that country's and language's title.

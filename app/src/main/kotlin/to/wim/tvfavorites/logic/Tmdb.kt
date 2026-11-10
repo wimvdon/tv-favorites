@@ -16,6 +16,10 @@ data class TmdbTitle(
     val posterPath: String,
     val backdropPath: String,
     val year: String,
+    /** "nl", "en", … */
+    val originalLanguage: String = "",
+    /** "BE", "NL", … (shows only). */
+    val originCountries: List<String> = emptyList(),
 ) {
     val posterUrl: String get() = if (posterPath.isBlank()) "" else "https://image.tmdb.org/t/p/w500$posterPath"
     val backdropUrl: String get() = if (backdropPath.isBlank()) "" else "https://image.tmdb.org/t/p/w780$backdropPath"
@@ -56,6 +60,8 @@ object Tmdb {
                 posterPath = o.string("poster_path"),
                 backdropPath = o.string("backdrop_path"),
                 year = o.string("first_air_date").ifEmpty { o.string("release_date") }.take(4),
+                originalLanguage = o.string("original_language"),
+                originCountries = (o["origin_country"] as? JsonArray)?.mapNotNull { (it as? kotlinx.serialization.json.JsonPrimitive)?.contentOrNull }.orEmpty(),
             )
         }
     }
@@ -81,14 +87,32 @@ object Tmdb {
 
     /**
      * The result that is clearly the same title as [title] (same name, ignoring case, accents
-     * and punctuation), preferring one with a poster. Null when none is a clear match, so a
-     * wrong poster is never filled in.
+     * and punctuation). For a regional service ([countries], [languages]) a result from that
+     * country, then in that language, wins over a same-named title from elsewhere (a Flemish "De
+     * Mol" is not the Dutch or American one). Among the rest, one with a poster first. Null when
+     * none is a clear match, so a wrong poster is never filled in.
      */
-    fun bestMatch(results: List<TmdbTitle>, title: String): TmdbTitle? {
+    fun bestMatch(
+        results: List<TmdbTitle>,
+        title: String,
+        countries: Set<String> = emptySet(),
+        languages: Set<String> = emptySet(),
+    ): TmdbTitle? {
         val wanted = Titles.normalize(title)
         if (wanted.isEmpty()) return null
         val same = results.filter { Titles.normalize(it.title) == wanted || Titles.normalize(it.originalTitle) == wanted }
-        return same.firstOrNull { it.posterPath.isNotBlank() } ?: same.firstOrNull()
+        val local =
+            same.filter { r -> r.originCountries.any { it in countries } }.ifEmpty {
+                same.filter { it.originalLanguage in languages }
+            }
+        val pool =
+            when {
+                local.isNotEmpty() -> local
+                // A regional service with several same-named titles, none of them local: too unsure.
+                (countries.isNotEmpty() || languages.isNotEmpty()) && same.size > 1 -> emptyList()
+                else -> same
+            }
+        return pool.firstOrNull { it.posterPath.isNotBlank() } ?: pool.firstOrNull()
     }
 
     private fun JsonObject.string(key: String): String = (this[key] as? kotlinx.serialization.json.JsonPrimitive)?.contentOrNull.orEmpty()
@@ -143,11 +167,13 @@ object DraftBuilder {
      * adds a poster and fills an empty description or picture.
      */
     fun build(link: SharedLink, finalUrl: String, page: PageMetadata?, match: TmdbTitle? = null): Draft {
-        val url = finalUrl.ifBlank { link.url }
+        // Never a consent wall's address: the page's own link or the shared one.
+        val url = ConsentGate.chooseLink(link.url, finalUrl.ifBlank { link.url }, page?.canonicalUrl.orEmpty())
         val service = ServiceCatalog.match(url) ?: ServiceCatalog.match(link.url)
         val serviceId = service?.id ?: ServiceCatalog.serviceIdFor(url)
         val serviceName = service?.name ?: ServiceCatalog.nameOf(serviceId)
         val title = titleFor(link, url, page, serviceName)
+        // The service's own pictures first; TMDB's only when the page has none.
         // A page whose title is only the site's name (a sign-in wall or a landing page) has the
         // site's general description and picture too: those say nothing about the show.
         val usefulPage = page?.takeUnless { Titles.isGeneric(Titles.clean(it.title, serviceName, it.siteName), serviceName, it.siteName) }
@@ -156,8 +182,8 @@ object DraftBuilder {
             serviceId = serviceId,
             title = title.ifBlank { match?.title.orEmpty() },
             description = usefulPage?.description.orEmpty().ifBlank { match?.overview.orEmpty() },
-            posterUrl = match?.posterUrl.orEmpty(),
-            imageUrl = usefulPage?.imageUrl.orEmpty().ifBlank { match?.backdropUrl.orEmpty() },
+            posterUrl = usefulPage?.posterUrl.orEmpty().ifBlank { if (usefulPage?.imageUrl.isNullOrBlank()) match?.posterUrl.orEmpty() else "" },
+            imageUrl = usefulPage?.imageUrl.orEmpty().ifBlank { if (usefulPage?.posterUrl.isNullOrBlank()) match?.backdropUrl.orEmpty() else "" },
             tmdbId = match?.id ?: 0,
             tmdbType = match?.mediaType.orEmpty(),
         )

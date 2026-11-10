@@ -70,7 +70,8 @@ class TmdbTest {
         val full = DraftBuilder.build(link, link.url, page, match)
         assertEquals("Wie is de mol?", full.description)
         assertEquals("https://vrt.be/mol.jpg", full.imageUrl)
-        assertEquals("https://image.tmdb.org/t/p/w500/m.jpg", full.posterUrl)
+        // The page has its own picture, so TMDB's poster is not used (PicturesTest).
+        assertEquals("", full.posterUrl)
         assertEquals(5L, full.tmdbId)
     }
 }
