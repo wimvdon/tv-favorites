@@ -190,16 +190,18 @@ private fun FavoriteRows(
     }
 }
 
+/** The service's own poster when it has one (portrait), otherwise its landscape picture. */
 @Composable
 fun Poster(item: Favorite, modifier: Modifier = Modifier) {
     val shape = RoundedCornerShape(8.dp)
+    val portrait = item.posterUrl.isNotBlank()
     AsyncImage(
-        model = item.posterUrl.ifBlank { item.imageUrl }.ifBlank { null },
+        model = if (portrait) item.posterUrl else item.imageUrl.ifBlank { null },
         contentDescription = null,
         contentScale = ContentScale.Crop,
         modifier =
             modifier
-                .size(width = 48.dp, height = 72.dp)
+                .size(width = if (portrait) 48.dp else 96.dp, height = if (portrait) 72.dp else 54.dp)
                 .clip(shape)
                 .background(MaterialTheme.colorScheme.surfaceContainerHighest),
     )

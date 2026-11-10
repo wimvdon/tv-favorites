@@ -63,6 +63,13 @@ query parameters), and never stores the wall's address (`ConsentGate.chooseLink`
 own `al:android:url`/`og:url`, or the shared link). Titles lose the site's name and a season part
 ("Seizoen 2"); a link's path gives a last-resort title ("mijn-restaurant~<id>" → "Mijn Restaurant").
 
+**Pictures** come from the service's own page first: every `og:image` (with its size), Twitter
+card and schema.org image; a portrait one (by size or a name like "poster") is the poster, a
+landscape one the picture. TMDB's poster and backdrop are only used when the page has no picture
+at all. TMDB matches for regional services (`StreamingService.countries`/`languages`) prefer a
+title from that country, then in that language, and give up when several same-named titles are
+all foreign.
+
 ## Opening a favorite on the TV
 `DeepLinks.findApp`: the app picked in Settings › Streaming apps, else a known package, else an
 installed TV app whose name matches the service. `DeepLinks.plan` then tries, in order: the

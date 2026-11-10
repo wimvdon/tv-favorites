@@ -31,7 +31,10 @@ class DetailsFetcher(private val http: OkHttpClient) {
             val (finalUrl, page) = readPage(link.url)
             val draft = DraftBuilder.build(link, finalUrl, page)
             if (tmdbToken.isBlank() || draft.title.isBlank()) return@withContext draft
-            val match = runCatching { searchTmdb(draft.title, tmdbToken) }.getOrNull() ?: return@withContext draft
+            val service = ServiceCatalog.byId(draft.serviceId)
+            val match =
+                runCatching { searchTmdb(draft.title, tmdbToken, service?.countries.orEmpty(), service?.languages.orEmpty()) }.getOrNull()
+                    ?: return@withContext draft
             val airing = runCatching { airingOf(match.id, match.mediaType, tmdbToken) }.getOrNull()
             DraftBuilder.build(link, finalUrl, page, match).copy(lastAired = airing?.date.orEmpty(), lastEpisode = airing?.episode.orEmpty())
         }
@@ -127,7 +130,12 @@ class DetailsFetcher(private val http: OkHttpClient) {
         }
     }
 
-    private fun searchTmdb(title: String, token: String): TmdbTitle? {
+    private fun searchTmdb(
+        title: String,
+        token: String,
+        countries: Set<String>,
+        languages: Set<String>,
+    ): TmdbTitle? {
         val locale = Locale.getDefault()
         val url =
             "${Tmdb.BASE_URL}/search/multi"
@@ -139,7 +147,7 @@ class DetailsFetcher(private val http: OkHttpClient) {
                 .build()
         tmdbRequest(url, token).use { response ->
             if (!response.isSuccessful) return null
-            return Tmdb.bestMatch(Tmdb.parseSearch(response.body.string()), title)
+            return Tmdb.bestMatch(Tmdb.parseSearch(response.body.string()), title, countries, languages)
         }
     }
 

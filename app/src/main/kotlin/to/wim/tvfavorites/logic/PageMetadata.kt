@@ -8,6 +8,8 @@ data class PageMetadata(
     val title: String = "",
     val description: String = "",
     val imageUrl: String = "",
+    /** A portrait poster the page itself offers (by its size or name), or empty. */
+    val posterUrl: String = "",
     val siteName: String = "",
     /**
      * The page's own link to itself, as it declares it for apps (`al:android:url`) or sharing
@@ -40,11 +42,14 @@ object PageMetadataParser {
                 ?: titleTag.find(head)?.groupValues?.get(1)?.let { decodeEntities(it).trim() }
                 ?: ""
         val description = meta["og:description"] ?: meta["twitter:description"] ?: meta["description"] ?: ""
-        val image = meta["og:image"] ?: meta["og:image:url"] ?: meta["og:image:secure_url"] ?: meta["twitter:image"] ?: meta["twitter:image:src"] ?: ""
+        val pictures = pictures(head, html, pageUrl)
+        val poster = pictures.firstOrNull { it.portrait == true } ?: pictures.firstOrNull { it.portrait == null && looksLikePoster(it.url) }
+        val image = pictures.firstOrNull { it.portrait == false } ?: pictures.firstOrNull { it != poster }
         return PageMetadata(
             title = title.collapseSpaces(),
             description = description.collapseSpaces(),
-            imageUrl = absolute(image, pageUrl),
+            imageUrl = image?.url.orEmpty(),
+            posterUrl = poster?.url.orEmpty(),
             siteName = meta["og:site_name"].orEmpty(),
             canonicalUrl =
                 listOfNotNull(meta["al:android:url"], meta["al:web:url"], meta["og:url"], canonicalLink.find(head)?.groupValues?.get(1))
@@ -52,6 +57,68 @@ object PageMetadataParser {
                     .firstOrNull { it.startsWith("https://") }
                     .orEmpty(),
         )
+    }
+
+    /** A picture the page offers; [portrait] is null when its size isn't given. */
+    private data class Picture(val url: String, val portrait: Boolean?)
+
+    private val jsonLd = Regex("""<script[^>]*type=["']application/ld\+json["'][^>]*>([\s\S]*?)</script>""", RegexOption.IGNORE_CASE)
+    private val jsonImage = Regex(""""(?:image|thumbnailUrl|contentUrl)"\s*:\s*(?:\[\s*)?(?:\{[^}]*?"url"\s*:\s*)?"([^"]+)"""")
+    private val posterWords = Regex("""poster|portrait|vertical|2x3|2_3""", RegexOption.IGNORE_CASE)
+
+    /**
+     * Every picture in the page's preview tags (each og:image with the width and height after
+     * it, Twitter cards) and its schema.org data, in that order, without duplicates.
+     */
+    private fun pictures(head: String, html: String, pageUrl: String): List<Picture> {
+        val found = mutableListOf<Picture>()
+        var current: String? = null
+        var width: Int? = null
+        var height: Int? = null
+
+        fun flush() {
+            current?.let { url ->
+                found += Picture(url, if (width != null && height != null) height!! > width!! else null)
+            }
+            current = null
+            width = null
+            height = null
+        }
+        for (tag in metaTag.findAll(head)) {
+            val attrs =
+                attribute.findAll(tag.value).associate { m ->
+                    m.groupValues[1].lowercase(Locale.ROOT) to (m.groups[3]?.value ?: m.groups[4]?.value.orEmpty())
+                }
+            val key = (attrs["property"] ?: attrs["name"] ?: attrs["itemprop"])?.lowercase(Locale.ROOT) ?: continue
+            val content = attrs["content"]?.let(::decodeEntities)?.trim().orEmpty()
+            if (content.isEmpty()) continue
+            when (key) {
+                "og:image", "og:image:url", "og:image:secure_url", "twitter:image", "twitter:image:src", "image", "thumbnailurl" -> {
+                    // og:image:url and og:image:secure_url right after an og:image name the same picture.
+                    val sameAsBefore = current != null && width == null && (key == "og:image:url" || key == "og:image:secure_url")
+                    if (!sameAsBefore) {
+                        flush()
+                        current = absolute(content, pageUrl)
+                    }
+                }
+                "og:image:width" -> width = content.toIntOrNull()
+                "og:image:height" -> height = content.toIntOrNull()
+            }
+        }
+        flush()
+        for (block in jsonLd.findAll(html)) {
+            jsonImage.findAll(block.groupValues[1]).forEach { m ->
+                val url = absolute(m.groupValues[1].replace("\\/", "/"), pageUrl)
+                if (url.startsWith("http")) found += Picture(url, null)
+            }
+        }
+        return found.distinctBy { it.url }
+    }
+
+    private fun looksLikePoster(url: String): Boolean {
+        val m = Regex("""(\d{2,4})x(\d{2,4})""").find(url)
+        if (m != null) return m.groupValues[2].toInt() > m.groupValues[1].toInt()
+        return posterWords.containsMatchIn(url)
     }
 
     private fun absolute(link: String, base: String): String {
