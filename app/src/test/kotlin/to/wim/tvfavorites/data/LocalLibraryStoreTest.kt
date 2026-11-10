@@ -24,13 +24,13 @@ class LocalLibraryStoreTest {
             store.updatePositions(listOf(fav("b", -1)))
             store.delete("missing")
             store.setOverride("x.org", ServiceOverride(packageName = "org.x"))
-            store.setTmdbToken(" token ")
+            store.setGroupOrder(listOf("x.org", "netflix"))
 
             val reopened = LocalLibraryStore(file).library.value
             assertEquals(listOf("Renamed", "Tb"), reopened.favorites.map { it.title })
             assertEquals(-1L, reopened.favorites.first { it.id == "b" }.position)
             assertEquals("org.x", reopened.overrides["x.org"]?.packageName)
-            assertEquals("token", reopened.tmdbToken)
+            assertEquals(listOf("x.org", "netflix"), reopened.groupOrder)
         }
 
     @Test

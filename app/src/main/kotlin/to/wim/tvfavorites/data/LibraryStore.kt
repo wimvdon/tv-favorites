@@ -29,7 +29,7 @@ interface LibraryStore {
 
     suspend fun setOverride(serviceId: String, value: ServiceOverride)
 
-    suspend fun setTmdbToken(token: String)
+    suspend fun setGroupOrder(order: List<String>)
 }
 
 /**
@@ -79,7 +79,7 @@ class LocalLibraryStore(private val file: File) : LibraryStore {
             lib.copy(overrides = if (value.isEmpty) lib.overrides - serviceId else lib.overrides + (serviceId to value))
         }
 
-    override suspend fun setTmdbToken(token: String) = change { it.copy(tmdbToken = token.trim()) }
+    override suspend fun setGroupOrder(order: List<String>) = change { it.copy(groupOrder = order) }
 
     /** Empties the list (after its favorites were copied to a TV's list). */
     suspend fun clear() = change { Library() }

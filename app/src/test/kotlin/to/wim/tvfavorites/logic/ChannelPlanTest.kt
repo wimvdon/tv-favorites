@@ -10,7 +10,7 @@ import java.net.URLDecoder
 class ChannelPlanTest {
     private val items =
         listOf(
-            Favorite(id = "1", title = "Dark", url = "https://www.netflix.com/title/1", serviceId = "netflix", position = 1, description = "Time travel", posterUrl = "https://p/1.jpg"),
+            Favorite(id = "1", title = "Dark", url = "https://www.netflix.com/title/1", serviceId = "netflix", position = 1, description = "Time travel"),
             Favorite(id = "2", title = "De Mol", url = "https://www.vrt.be/vrtmax/a-z/de-mol/", serviceId = "vrtmax", position = 0, imageUrl = "https://i/2.jpg"),
         )
 
@@ -30,10 +30,10 @@ class ChannelPlanTest {
     }
 
     @Test
-    fun `landscape pictures are preferred, posters are marked portrait`() {
-        assertTrue(ChannelPlan.program(items[0]).portrait)
+    fun `tiles use the service's picture and the user's row order`() {
         assertEquals("https://i/2.jpg", ChannelPlan.program(items[1]).imageUrl)
-        assertEquals(false, ChannelPlan.program(items[1]).portrait)
+        assertEquals("", ChannelPlan.program(items[0]).imageUrl)
+        assertEquals(listOf("all", "netflix", "vrtmax"), ChannelPlan.plan(items, "All", groupOrder = listOf("netflix")).map { it.key })
     }
 
     @Test

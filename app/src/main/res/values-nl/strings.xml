@@ -17,7 +17,6 @@
     <string name="action_move_up">Omhoog</string>
     <string name="action_move_down">Omlaag</string>
     <string name="action_group_by_service">Groeperen per dienst</string>
-    <string name="action_one_list">Als één lijst tonen</string>
     <string name="action_refresh_details">Opnieuw opzoeken</string>
     <string name="section_expanded">Uitgevouwen</string>
     <string name="section_collapsed">Ingevouwen</string>
@@ -32,10 +31,14 @@
     <string name="field_description">Beschrijving</string>
     <string name="field_link">Link</string>
     <string name="field_picture">Afbeelding (link)</string>
-    <string name="field_poster">Poster (link)</string>
+    <string name="group_order_title">Volgorde van diensten</string>
+    <string name="group_order_summary">De volgorde van de groepen en van de rijen op de tv</string>
+    <string name="group_order_body">Ook de volgorde van de rijen op je tv, na “Alle”.</string>
+    <string name="tv_row_order_title">Volgorde van rijen</string>
+    <string name="tv_row_order_body">Selecteer een rij, verplaats ze met ▲ ▼ en druk op OK als je klaar bent. De groepen op de telefoon volgen.</string>
+    <string name="tv_row_moving">▲ ▼ om te verplaatsen, OK als je klaar bent</string>
     <string name="field_service">Streamingdienst</string>
     <string name="refresh_failed">Kon deze link niet opzoeken</string>
-    <string name="tmdb_hint">Met een TMDB-token in Instellingen komen er posters en uitzenddata bij.</string>
     <string name="last_aired">Laatst uitgezonden %1$s</string>
     <string name="delete_title">Favoriet verwijderen?</string>
     <string name="delete_body">%1$s wordt van je telefoon en tv verwijderd.</string>
@@ -58,15 +61,6 @@
     <string name="unpair_title">Loskoppelen van tv</string>
     <string name="unpair_body">Je lijst blijft op deze telefoon en de tv houdt zijn kopie.</string>
     <string name="unpair_action">Loskoppelen</string>
-    <string name="tmdb_title">TMDB-token</string>
-    <string name="tmdb_summary_missing">Niet ingesteld: voor posters en uitzenddata</string>
-    <string name="tmdb_summary_missing_tv">Niet ingesteld: vul het in op je telefoon, het wordt gedeeld met deze tv</string>
-    <string name="tmdb_summary_set">Ingesteld</string>
-    <string name="tmdb_dialog_body">Je eigen “API Read Access Token” van themoviedb.org. Het wordt gedeeld met je gekoppelde tv, zodat de tv de uitzenddata zelf bijhoudt.</string>
-    <string name="tmdb_tv_body">Makkelijker op je telefoon: een token dat je daar invult, wordt gedeeld met deze tv.</string>
-    <string name="tmdb_invalid">Plak de lange “API Read Access Token”, niet de korte API-sleutel</string>
-    <string name="tmdb_steps_title">Zo krijg je een TMDB-token</string>
-    <string name="tmdb_steps">1. Maak een gratis account op themoviedb.org.\n2. Open Settings › API en vraag een API-sleutel aan (persoonlijk gebruik).\n3. Kopieer de “API Read Access Token” en plak hem hier.</string>
     <string name="services_title">Streamingapps</string>
     <string name="services_summary">Welke tv-app elke dienst opent</string>
     <string name="services_body">De tv vindt de app van elke dienst zelf. Wijzig het hier als een serie niet opent.</string>
@@ -83,7 +77,7 @@
     <string name="theme_dark">Donker</string>
     <string name="dynamic_color">Dynamische kleuren</string>
     <string name="dynamic_color_summary">Kleuren van je achtergrond gebruiken</string>
-    <string name="tvmaze_attribution">Uitzendtijden van TVmaze</string>
+    <string name="tvmaze_attribution">Uitzenddata van TVmaze</string>
     <string name="tv_row_all">Alle</string>
     <string name="tv_connect_phone">Telefoon verbinden</string>
     <string name="tv_connect_phone_summary">Toon de code om te scannen met TV Favorites op je telefoon</string>
@@ -100,4 +94,8 @@
     <string name="tv_rows_body">De rij “Alle” komt er vanzelf. Android vraagt het één keer per extra rij.</string>
     <string name="tv_rows_none">Nog geen rijen per dienst: ze verschijnen zodra de lijst favorieten heeft.</string>
     <string name="tv_rows_add">Toevoegen aan startscherm</string>
+    <plurals name="favorites_count">
+        <item quantity="one">%d favoriet</item>
+        <item quantity="other">%d favorieten</item>
+    </plurals>
 </resources>

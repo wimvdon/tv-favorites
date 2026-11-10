@@ -38,10 +38,24 @@ class OrderingTest {
 
     @Test
     fun `groups follow the first favorite of each service`() {
-        val groups = Ordering.groups(list) { it.uppercase() }
+        val groups = Ordering.groups(list, nameOf = { it.uppercase() })
         assertEquals(listOf("netflix", "vrtmax"), groups.map { it.serviceId })
         assertEquals(listOf("a", "c"), groups[0].items.map { it.id })
         assertEquals("NETFLIX", groups[0].name)
+    }
+
+    @Test
+    fun `groups follow the user's order, unknown ones after`() {
+        val extra = list + fav("e", "goplay", 4)
+        assertEquals(listOf("goplay", "netflix", "vrtmax"), Ordering.groups(extra, order = listOf("goplay")).map { it.serviceId })
+        assertEquals(listOf("vrtmax", "goplay", "netflix"), Ordering.groups(extra, order = listOf("vrtmax", "goplay", "gone")).map { it.serviceId })
+    }
+
+    @Test
+    fun `moving a group keeps services without favorites in the stored order`() {
+        val shown = listOf("netflix", "vrtmax", "goplay")
+        assertEquals(listOf("goplay", "netflix", "vrtmax", "old"), Ordering.moveGroup(shown, listOf("old"), 2, 0))
+        assertEquals(listOf("old"), Ordering.moveGroup(shown, listOf("old"), 1, 1))
     }
 
     @Test

@@ -27,23 +27,11 @@ class AiringTest {
     }
 
     @Test
-    fun `refreshed once a day, only for TMDB matches`() {
+    fun `found shows are refreshed daily, the others searched weekly`() {
         val day = Airing.REFRESH_AFTER_MS
-        assertFalse(Airing.isDue(base, now = 10 * day))
-        assertTrue(Airing.isDue(base.copy(tmdbId = 5, checkedAt = 0), now = day))
-        assertFalse(Airing.isDue(base.copy(tmdbId = 5, checkedAt = day), now = day + 1000))
-    }
-
-    @Test
-    fun `TVmaze's moment is used unless it is older than TMDB's date`() {
-        val tmdb = TmdbAiring("2026-11-03", "S2E5", "tt1")
-        val exact = TmdbAiring("2026-11-04T02:30:00+00:00", "S2E5")
-        assertEquals(exact.copy(imdbId = "tt1"), Airing.pick(tmdb, exact))
-        // A day earlier in UTC is still the same episode (aired in the evening somewhere east).
-        val east = TmdbAiring("2026-11-02T20:00:00+00:00", "S2E5")
-        assertEquals(east.copy(imdbId = "tt1"), Airing.pick(tmdb, east))
-        // TVmaze lagging a whole season behind: keep TMDB's.
-        assertEquals(tmdb, Airing.pick(tmdb, TmdbAiring("2025-05-01T20:00:00+00:00", "S1E8")))
-        assertEquals(tmdb, Airing.pick(tmdb, null))
+        assertTrue(Airing.isDue(base, now = 7 * day))
+        assertFalse(Airing.isDue(base.copy(checkedAt = day), now = 2 * day))
+        assertTrue(Airing.isDue(base.copy(tvMazeId = 5, checkedAt = 0), now = day))
+        assertFalse(Airing.isDue(base.copy(tvMazeId = 5, checkedAt = day), now = day + 1000))
     }
 }

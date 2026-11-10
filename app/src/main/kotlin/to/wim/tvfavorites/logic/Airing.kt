@@ -10,21 +10,15 @@ import java.util.Locale
 
 object Airing {
     const val REFRESH_AFTER_MS = 24L * 60 * 60 * 1000
-
-    /** True when the last aired date of [item] should be looked up again (once a day for TMDB matches). */
-    fun isDue(item: Favorite, now: Long): Boolean = item.tmdbId > 0 && now - item.checkedAt >= REFRESH_AFTER_MS
+    const val SEARCH_AGAIN_AFTER_MS = 7 * REFRESH_AFTER_MS
 
     /**
-     * TVmaze's exact moment when it is about the same episode as TMDB's date or a later one
-     * (a day earlier is allowed: TVmaze gives the moment in UTC), TMDB's date otherwise, so a
-     * show TVmaze tracks less well never goes back in time.
+     * True when [item]'s last aired episode should be looked up: once a day for a show found on
+     * TVmaze, once a week for one not found yet (TVmaze may add it; also fills in favorites
+     * saved before air dates existed).
      */
-    fun pick(tmdb: TmdbAiring, tvMaze: TmdbAiring?): TmdbAiring {
-        if (tvMaze == null) return tmdb
-        val exact = runCatching { OffsetDateTime.parse(tvMaze.date).toLocalDate() }.getOrNull() ?: return tmdb
-        val day = runCatching { LocalDate.parse(tmdb.date) }.getOrNull() ?: return tvMaze.copy(imdbId = tmdb.imdbId)
-        return if (!exact.isBefore(day.minusDays(1))) tvMaze.copy(imdbId = tmdb.imdbId) else tmdb
-    }
+    fun isDue(item: Favorite, now: Long): Boolean =
+        now - item.checkedAt >= if (item.tvMazeId > 0) REFRESH_AFTER_MS else SEARCH_AGAIN_AFTER_MS
 
     /**
      * "3 Nov 2026, 21:30 · S2E5" in the reader's [locale], with the time in [zone] (the TV's own

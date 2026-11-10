@@ -16,8 +16,6 @@ data class PlannedProgram(
     val title: String,
     val description: String,
     val imageUrl: String,
-    /** True when [imageUrl] is a portrait poster (2:3), false for a landscape picture (16:9). */
-    val portrait: Boolean,
     val intentUri: String,
 )
 
@@ -32,11 +30,12 @@ object ChannelPlan {
         items: List<Favorite>,
         allName: String,
         aired: (Favorite) -> String = { "" },
+        groupOrder: List<String> = emptyList(),
         limit: Int = 50,
     ): List<PlannedChannel> {
         val sorted = Ordering.sorted(items)
         val all = PlannedChannel(ALL, allName, sorted.take(limit).map { program(it, aired(it)) })
-        val perService = Ordering.groups(sorted).map { g -> PlannedChannel(g.serviceId, g.name, g.items.take(limit).map { program(it, aired(it)) }) }
+        val perService = Ordering.groups(sorted, order = groupOrder).map { g -> PlannedChannel(g.serviceId, g.name, g.items.take(limit).map { program(it, aired(it)) }) }
         return listOf(all) + perService
     }
 
@@ -46,8 +45,7 @@ object ChannelPlan {
             favoriteId = item.id,
             title = item.title,
             description = listOf(airedLine, item.description).filter { it.isNotBlank() }.joinToString("\n"),
-            imageUrl = item.imageUrl.ifBlank { item.posterUrl },
-            portrait = item.imageUrl.isBlank() && item.posterUrl.isNotBlank(),
+            imageUrl = item.imageUrl,
             intentUri = openUri(item),
         )
 

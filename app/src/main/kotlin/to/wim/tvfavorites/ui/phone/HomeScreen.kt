@@ -97,14 +97,6 @@ fun HomeScreen(
             TopAppBar(
                 title = { Text(stringResource(R.string.app_name)) },
                 actions = {
-                    if (!library?.favorites.isNullOrEmpty()) {
-                        IconButton(onClick = { scope.launch { app.settings.setGroupByService(!settings.groupByService) } }) {
-                            Icon(
-                                painterResource(if (settings.groupByService) R.drawable.ic_view_list else R.drawable.ic_view_agenda),
-                                contentDescription = stringResource(if (settings.groupByService) R.string.action_one_list else R.string.action_group_by_service),
-                            )
-                        }
-                    }
                     IconButton(onClick = onSettings) {
                         Icon(painterResource(R.drawable.ic_settings), contentDescription = stringResource(R.string.settings_title))
                     }
@@ -138,7 +130,7 @@ fun HomeScreen(
                             .padding(bottom = 88.dp),
                     ) {
                         if (settings.groupByService) {
-                            Ordering.groups(items).forEach { group ->
+                            Ordering.groups(items, order = library?.groupOrder.orEmpty()).forEach { group ->
                                 Text(
                                     group.name,
                                     style = MaterialTheme.typography.titleSmall,
@@ -182,7 +174,7 @@ private fun FavoriteRows(
         ListItem(
             headlineContent = { Text(item.title, maxLines = 2, overflow = TextOverflow.Ellipsis) },
             supportingContent = supporting.takeIf { it.isNotEmpty() }?.let { { Text(it, maxLines = 1, overflow = TextOverflow.Ellipsis) } },
-            leadingContent = { Poster(item) },
+            leadingContent = { Thumbnail(item) },
             trailingContent = { DragHandle(handleModifier) },
             colors = ListItemDefaults.colors(containerColor = if (isDragging) MaterialTheme.colorScheme.surfaceContainerHigh else MaterialTheme.colorScheme.surface),
             modifier = Modifier.clickable { onEdit(item) },
@@ -190,19 +182,17 @@ private fun FavoriteRows(
     }
 }
 
-/** The service's own poster when it has one (portrait), otherwise its landscape picture. */
+/** The service's own picture, 16:9 like the TV's cards. */
 @Composable
-fun Poster(item: Favorite, modifier: Modifier = Modifier) {
-    val shape = RoundedCornerShape(8.dp)
-    val portrait = item.posterUrl.isNotBlank()
+fun Thumbnail(item: Favorite, modifier: Modifier = Modifier) {
     AsyncImage(
-        model = if (portrait) item.posterUrl else item.imageUrl.ifBlank { null },
+        model = item.imageUrl.ifBlank { null },
         contentDescription = null,
         contentScale = ContentScale.Crop,
         modifier =
             modifier
-                .size(width = if (portrait) 48.dp else 96.dp, height = if (portrait) 72.dp else 54.dp)
-                .clip(shape)
+                .size(width = 96.dp, height = 54.dp)
+                .clip(RoundedCornerShape(8.dp))
                 .background(MaterialTheme.colorScheme.surfaceContainerHighest),
     )
 }
@@ -215,7 +205,7 @@ private fun LoadingRows() {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 repeat(6) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        SkeletonBlock(height = 72.dp, modifier = Modifier.width(48.dp))
+                        SkeletonBlock(height = 54.dp, modifier = Modifier.width(96.dp))
                         Spacer(Modifier.width(16.dp))
                         SkeletonBlock(height = 20.dp, modifier = Modifier.fillMaxWidth(0.7f))
                     }

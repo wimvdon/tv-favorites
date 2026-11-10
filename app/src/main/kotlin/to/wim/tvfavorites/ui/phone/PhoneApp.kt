@@ -30,6 +30,8 @@ sealed interface Route {
     data object Settings : Route
 
     data object Services : Route
+
+    data object GroupOrder : Route
 }
 
 /**
@@ -46,7 +48,6 @@ fun PhoneApp(
     val stack = remember { mutableStateListOf<Route>(Route.Home) }
     val settings by app.settings.settings.collectAsStateWithLifecycle(Settings())
     val device by app.settings.device.collectAsStateWithLifecycle(DeviceState())
-    val library by app.library.library.collectAsStateWithLifecycle()
 
     fun push(route: Route) {
         stack.add(route)
@@ -64,7 +65,7 @@ fun PhoneApp(
     }
     // The last aired episode of shows matched on TMDB, at most once a day each.
     LaunchedEffect(Unit) {
-        app.library.library.collect { lib -> if (lib != null) app.library.refreshAiring(app.details, app.library.tmdbToken()) }
+        app.library.library.collect { lib -> if (lib != null) app.library.refreshAiring(app.details) }
     }
 
     BackHandler(enabled = stack.size > 1) {
@@ -91,7 +92,6 @@ fun PhoneApp(
             is Route.Add ->
                 AddScreen(
                     link = route.link,
-                    tmdbToken = device.tmdbToken.ifBlank { library?.tmdbToken.orEmpty() },
                     onBack = {
                         pop()
                         onSharedHandled(false)
@@ -101,15 +101,17 @@ fun PhoneApp(
                         onSharedHandled(true)
                     },
                 )
-            is Route.Edit -> EditScreen(id = route.id, tmdbToken = device.tmdbToken.ifBlank { library?.tmdbToken.orEmpty() }, onBack = ::pop)
+            is Route.Edit -> EditScreen(id = route.id, onBack = ::pop)
             Route.Settings ->
                 SettingsScreen(
                     settings = settings,
                     device = device,
                     onBack = ::pop,
                     onServices = { push(Route.Services) },
+                    onGroupOrder = { push(Route.GroupOrder) },
                 )
             Route.Services -> ServicesScreen(onBack = ::pop)
+            Route.GroupOrder -> GroupOrderScreen(onBack = ::pop)
         }
     }
 }

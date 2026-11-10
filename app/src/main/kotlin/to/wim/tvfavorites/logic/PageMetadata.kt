@@ -8,8 +8,6 @@ data class PageMetadata(
     val title: String = "",
     val description: String = "",
     val imageUrl: String = "",
-    /** A portrait poster the page itself offers (by its size or name), or empty. */
-    val posterUrl: String = "",
     val siteName: String = "",
     /**
      * The page's own link to itself, as it declares it for apps (`al:android:url`) or sharing
@@ -42,14 +40,13 @@ object PageMetadataParser {
                 ?: titleTag.find(head)?.groupValues?.get(1)?.let { decodeEntities(it).trim() }
                 ?: ""
         val description = meta["og:description"] ?: meta["twitter:description"] ?: meta["description"] ?: ""
+        // Landscape first (the cards and home screen tiles are 16:9), else whatever picture there is.
         val pictures = pictures(head, html, pageUrl)
-        val poster = pictures.firstOrNull { it.portrait == true } ?: pictures.firstOrNull { it.portrait == null && looksLikePoster(it.url) }
-        val image = pictures.firstOrNull { it.portrait == false } ?: pictures.firstOrNull { it != poster }
+        val image = pictures.firstOrNull { it.portrait == false } ?: pictures.firstOrNull { it.portrait == null } ?: pictures.firstOrNull()
         return PageMetadata(
             title = title.collapseSpaces(),
             description = description.collapseSpaces(),
             imageUrl = image?.url.orEmpty(),
-            posterUrl = poster?.url.orEmpty(),
             siteName = meta["og:site_name"].orEmpty(),
             canonicalUrl =
                 listOfNotNull(meta["al:android:url"], meta["al:web:url"], meta["og:url"], canonicalLink.find(head)?.groupValues?.get(1))
@@ -64,7 +61,6 @@ object PageMetadataParser {
 
     private val jsonLd = Regex("""<script[^>]*type=["']application/ld\+json["'][^>]*>([\s\S]*?)</script>""", RegexOption.IGNORE_CASE)
     private val jsonImage = Regex(""""(?:image|thumbnailUrl|contentUrl)"\s*:\s*(?:\[\s*)?(?:\{[^}]*?"url"\s*:\s*)?"([^"]+)"""")
-    private val posterWords = Regex("""poster|portrait|vertical|2x3|2_3""", RegexOption.IGNORE_CASE)
 
     /**
      * Every picture in the page's preview tags (each og:image with the width and height after
@@ -113,12 +109,6 @@ object PageMetadataParser {
             }
         }
         return found.distinctBy { it.url }
-    }
-
-    private fun looksLikePoster(url: String): Boolean {
-        val m = Regex("""(\d{2,4})x(\d{2,4})""").find(url)
-        if (m != null) return m.groupValues[2].toInt() > m.groupValues[1].toInt()
-        return posterWords.containsMatchIn(url)
     }
 
     private fun absolute(link: String, base: String): String {

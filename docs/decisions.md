@@ -124,3 +124,11 @@ declared link. The app never accepts consent on the user's behalf.
 The owner saw a wrong TMDB poster on a VRT MAX show whose page has its own pictures. Pictures now
 come from the shared page first and TMDB only fills in when the page has none; TMDB matching for
 regional services prefers that country's and language's title.
+
+## 2026-11-10: Landscape pictures only, TVmaze instead of TMDB, own group order
+
+Owner's choice. Streaming pages almost only offer landscape preview pictures, so the app uses
+those everywhere (phone thumbnails, TV cards, home screen tiles) and no longer has posters. TMDB is
+removed: no token to set up, no wrong posters; air dates come from TVmaze alone (search by title,
+regional match, no key). Cost: shows TVmaze doesn't know, and movies, get no air date. The
+service order is the user's own and shared, so the phone's groups and the TV's rows follow it.

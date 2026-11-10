@@ -17,7 +17,6 @@
     <string name="action_move_up">Monter</string>
     <string name="action_move_down">Descendre</string>
     <string name="action_group_by_service">Grouper par service</string>
-    <string name="action_one_list">Afficher en une liste</string>
     <string name="action_refresh_details">Rechercher à nouveau</string>
     <string name="section_expanded">Développé</string>
     <string name="section_collapsed">Réduit</string>
@@ -32,10 +31,14 @@
     <string name="field_description">Description</string>
     <string name="field_link">Lien</string>
     <string name="field_picture">Image (lien)</string>
-    <string name="field_poster">Affiche (lien)</string>
+    <string name="group_order_title">Ordre des services</string>
+    <string name="group_order_summary">L’ordre des groupes et des rangées sur la TV</string>
+    <string name="group_order_body">C’est aussi l’ordre des rangées sur votre TV, après « Tous ».</string>
+    <string name="tv_row_order_title">Ordre des rangées</string>
+    <string name="tv_row_order_body">Sélectionnez une rangée, déplacez-la avec ▲ ▼ et appuyez sur OK pour terminer. Les groupes du téléphone suivent.</string>
+    <string name="tv_row_moving">▲ ▼ pour déplacer, OK pour terminer</string>
     <string name="field_service">Service de streaming</string>
     <string name="refresh_failed">Impossible de rechercher ce lien</string>
-    <string name="tmdb_hint">Avec un jeton TMDB dans les paramètres, les affiches et dates de diffusion sont ajoutées.</string>
     <string name="last_aired">Dernière diffusion %1$s</string>
     <string name="delete_title">Supprimer le favori ?</string>
     <string name="delete_body">%1$s sera supprimé de votre téléphone et de votre TV.</string>
@@ -58,15 +61,6 @@
     <string name="unpair_title">Déconnecter de la TV</string>
     <string name="unpair_body">Votre liste reste sur ce téléphone et la TV garde sa copie.</string>
     <string name="unpair_action">Déconnecter</string>
-    <string name="tmdb_title">Jeton TMDB</string>
-    <string name="tmdb_summary_missing">Non défini : pour les affiches et dates de diffusion</string>
-    <string name="tmdb_summary_missing_tv">Non défini : saisissez-le sur votre téléphone, il est partagé avec cette TV</string>
-    <string name="tmdb_summary_set">Défini</string>
-    <string name="tmdb_dialog_body">Votre propre « API Read Access Token » de themoviedb.org. Il est partagé avec votre TV connectée, pour qu’elle tienne les dates de diffusion à jour elle-même.</string>
-    <string name="tmdb_tv_body">Plus simple sur votre téléphone : un jeton saisi là-bas est partagé avec cette TV.</string>
-    <string name="tmdb_invalid">Collez le long « API Read Access Token », pas la courte clé API</string>
-    <string name="tmdb_steps_title">Obtenir un jeton TMDB</string>
-    <string name="tmdb_steps">1. Créez un compte gratuit sur themoviedb.org.\n2. Ouvrez Settings › API et demandez une clé API (usage personnel).\n3. Copiez le « API Read Access Token » et collez-le ici.</string>
     <string name="services_title">Applications de streaming</string>
     <string name="services_summary">Quelle application TV ouvre chaque service</string>
     <string name="services_body">La TV trouve elle-même l’application de chaque service. Modifiez-la ici si un programme ne s’ouvre pas.</string>
@@ -83,7 +77,7 @@
     <string name="theme_dark">Sombre</string>
     <string name="dynamic_color">Couleurs dynamiques</string>
     <string name="dynamic_color_summary">Utiliser les couleurs du fond d’écran</string>
-    <string name="tvmaze_attribution">Horaires de diffusion : TVmaze</string>
+    <string name="tvmaze_attribution">Dates de diffusion : TVmaze</string>
     <string name="tv_row_all">Tous</string>
     <string name="tv_connect_phone">Connecter un téléphone</string>
     <string name="tv_connect_phone_summary">Afficher le code à scanner avec TV Favorites sur votre téléphone</string>
@@ -100,4 +94,9 @@
     <string name="tv_rows_body">La rangée « Tous » est ajoutée d’elle-même. Android demande une fois par rangée supplémentaire.</string>
     <string name="tv_rows_none">Pas encore de rangées : elles apparaissent dès que la liste contient des favoris.</string>
     <string name="tv_rows_add">Ajouter à l’écran d’accueil</string>
+    <plurals name="favorites_count">
+        <item quantity="one">%d favori</item>
+        <item quantity="many">%d favoris</item>
+        <item quantity="other">%d favoris</item>
+    </plurals>
 </resources>

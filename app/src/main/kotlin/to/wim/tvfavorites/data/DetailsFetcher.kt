@@ -7,59 +7,56 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import to.wim.tvfavorites.BuildConfig
 import to.wim.tvfavorites.logic.Draft
-import to.wim.tvfavorites.logic.Airing
 import to.wim.tvfavorites.logic.ConsentGate
 import to.wim.tvfavorites.logic.DraftBuilder
 import to.wim.tvfavorites.logic.PageMetadata
 import to.wim.tvfavorites.logic.PageMetadataParser
 import to.wim.tvfavorites.logic.ServiceCatalog
+import to.wim.tvfavorites.logic.LastAired
 import to.wim.tvfavorites.logic.SharedLink
-import to.wim.tvfavorites.logic.Tmdb
-import to.wim.tvfavorites.logic.TmdbAiring
-import to.wim.tvfavorites.logic.TmdbTitle
 import to.wim.tvfavorites.logic.TvMaze
+import to.wim.tvfavorites.logic.TvMazeShow
 import to.wim.tvfavorites.logic.Titles
 import java.util.Locale
 
 /**
- * Looks up the title, description and pictures of a shared link: the page's own preview tags
- * first, TMDB (with the user's token) for a poster and anything missing.
+ * Looks up a shared link: the title, description and picture the service's own page gives
+ * (its preview tags), and the show on TVmaze for when its latest episode aired.
  */
 class DetailsFetcher(private val http: OkHttpClient) {
-    suspend fun fetch(link: SharedLink, tmdbToken: String): Draft =
+    suspend fun fetch(link: SharedLink): Draft =
         withContext(Dispatchers.IO) {
             val (finalUrl, page) = readPage(link.url)
             val draft = DraftBuilder.build(link, finalUrl, page)
-            if (tmdbToken.isBlank() || draft.title.isBlank()) return@withContext draft
+            if (draft.title.isBlank()) return@withContext draft
             val service = ServiceCatalog.byId(draft.serviceId)
-            val match =
-                runCatching { searchTmdb(draft.title, tmdbToken, service?.countries.orEmpty(), service?.languages.orEmpty()) }.getOrNull()
-                    ?: return@withContext draft
-            val airing = runCatching { airingOf(match.id, match.mediaType, tmdbToken) }.getOrNull()
-            DraftBuilder.build(link, finalUrl, page, match).copy(lastAired = airing?.date.orEmpty(), lastEpisode = airing?.episode.orEmpty())
+            val show = runCatching { findShow(draft.title, service?.countries.orEmpty(), service?.languages.orEmpty()) }.getOrNull()
+                ?: return@withContext draft
+            DraftBuilder.withShow(draft, show, runCatching { lastAired(show.id) }.getOrNull())
         }
 
-    /** When the latest episode of a TMDB show aired (or a movie came out), or null when TMDB couldn't be asked. */
-    suspend fun airing(tmdbId: Long, mediaType: String, tmdbToken: String): TmdbAiring? =
-        withContext(Dispatchers.IO) { runCatching { airingOf(tmdbId, mediaType, tmdbToken) }.getOrNull() }
+    /** The show on TVmaze for [title] (null when there is no clear match or TVmaze couldn't be asked). */
+    suspend fun show(title: String, serviceId: String): TvMazeShow? =
+        withContext(Dispatchers.IO) {
+            val service = ServiceCatalog.byId(serviceId)
+            runCatching { findShow(title, service?.countries.orEmpty(), service?.languages.orEmpty()) }.getOrNull()
+        }
 
-    /** TMDB gives the date; TVmaze, when it knows the show, the exact moment of the episode. */
-    private fun airingOf(tmdbId: Long, mediaType: String, token: String): TmdbAiring? {
-        val type = if (mediaType == "movie") "movie" else "tv"
-        val url = "${Tmdb.BASE_URL}/$type/$tmdbId".toHttpUrl().newBuilder().apply { if (type == "tv") addQueryParameter("append_to_response", "external_ids") }.build()
-        val fromTmdb =
-            tmdbRequest(url, token).use { response ->
-                if (!response.isSuccessful) return null
-                Tmdb.parseAiring(response.body.string(), type)
-            }
-        if (type != "tv" || fromTmdb.imdbId.isBlank()) return fromTmdb
-        return Airing.pick(fromTmdb, runCatching { tvMazeAiring(fromTmdb.imdbId) }.getOrNull())
+    /** When the latest episode of TVmaze show [id] aired; null when TVmaze couldn't be asked or knows none. */
+    suspend fun airing(id: Long): LastAired? = withContext(Dispatchers.IO) { runCatching { lastAired(id) }.getOrNull() }
+
+    private fun findShow(
+        title: String,
+        countries: Set<String>,
+        languages: Set<String>,
+    ): TvMazeShow? {
+        val url = "${TvMaze.BASE_URL}/search/shows".toHttpUrl().newBuilder().addQueryParameter("q", title).build()
+        return plainGet(url)?.let { TvMaze.bestMatch(TvMaze.parseSearch(it), title, countries, languages) }
     }
 
-    private fun tvMazeAiring(imdbId: String): TmdbAiring? {
-        val show = "${TvMaze.BASE_URL}/lookup/shows".toHttpUrl().newBuilder().addQueryParameter("imdb", imdbId).build()
-        val link = plainGet(show)?.let(TvMaze::previousEpisodeLink)?.takeIf { it.startsWith(TvMaze.BASE_URL) } ?: return null
-        return plainGet(link.toHttpUrl())?.let(TvMaze::parseEpisode)
+    private fun lastAired(id: Long): LastAired? {
+        val url = "${TvMaze.BASE_URL}/shows/$id".toHttpUrl().newBuilder().addQueryParameter("embed", "previousepisode").build()
+        return plainGet(url)?.let(TvMaze::parsePreviousEpisode)
     }
 
     private fun plainGet(url: okhttp3.HttpUrl): String? =
@@ -67,18 +64,6 @@ class DetailsFetcher(private val http: OkHttpClient) {
             .newCall(Request.Builder().url(url).header("User-Agent", "tv-favorites/${BuildConfig.VERSION_NAME}").build())
             .execute()
             .use { if (it.isSuccessful) it.body.string() else null }
-
-    private fun tmdbRequest(url: okhttp3.HttpUrl, token: String) =
-        http
-            .newCall(
-                Request
-                    .Builder()
-                    .url(url)
-                    .header("Authorization", "Bearer ${token.trim()}")
-                    .header("Accept", "application/json")
-                    .header("User-Agent", "tv-favorites/${BuildConfig.VERSION_NAME}")
-                    .build(),
-            ).execute()
 
     /**
      * The page after redirects, and what it says about itself (null when it couldn't be read, or
@@ -127,27 +112,6 @@ class DetailsFetcher(private val http: OkHttpClient) {
             body.request(MAX_PAGE_BYTES)
             val bytes = body.buffer.readByteArray(minOf(body.buffer.size, MAX_PAGE_BYTES))
             return response.request.url.toString() to String(bytes, Charsets.UTF_8)
-        }
-    }
-
-    private fun searchTmdb(
-        title: String,
-        token: String,
-        countries: Set<String>,
-        languages: Set<String>,
-    ): TmdbTitle? {
-        val locale = Locale.getDefault()
-        val url =
-            "${Tmdb.BASE_URL}/search/multi"
-                .toHttpUrl()
-                .newBuilder()
-                .addQueryParameter("query", title)
-                .addQueryParameter("language", "${locale.language}-${locale.country.ifEmpty { locale.language.uppercase(Locale.ROOT) }}")
-                .addQueryParameter("include_adult", "false")
-                .build()
-        tmdbRequest(url, token).use { response ->
-            if (!response.isSuccessful) return null
-            return Tmdb.bestMatch(Tmdb.parseSearch(response.body.string()), title, countries, languages)
         }
     }
 

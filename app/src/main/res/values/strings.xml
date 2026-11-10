@@ -17,7 +17,6 @@
     <string name="action_move_up">Move up</string>
     <string name="action_move_down">Move down</string>
     <string name="action_group_by_service">Group by service</string>
-    <string name="action_one_list">Show as one list</string>
     <string name="action_refresh_details">Look up again</string>
     <string name="section_expanded">Expanded</string>
     <string name="section_collapsed">Collapsed</string>
@@ -32,10 +31,14 @@
     <string name="field_description">Description</string>
     <string name="field_link">Link</string>
     <string name="field_picture">Picture (link)</string>
-    <string name="field_poster">Poster (link)</string>
+    <string name="group_order_title">Service order</string>
+    <string name="group_order_summary">The order of the groups and of the TV rows</string>
+    <string name="group_order_body">Also the order of the rows on your TV, after “All”.</string>
+    <string name="tv_row_order_title">Row order</string>
+    <string name="tv_row_order_body">Select a row, move it with ▲ ▼ and press OK when done. The phone’s groups follow.</string>
+    <string name="tv_row_moving">▲ ▼ to move, OK when done</string>
     <string name="field_service">Streaming service</string>
     <string name="refresh_failed">Couldn’t look up this link</string>
-    <string name="tmdb_hint">With a TMDB token in Settings, posters and air dates are added.</string>
     <string name="last_aired">Last aired %1$s</string>
     <string name="delete_title">Delete favorite?</string>
     <string name="delete_body">%1$s is removed from your phone and TV.</string>
@@ -58,16 +61,6 @@
     <string name="unpair_title">Disconnect from TV</string>
     <string name="unpair_body">Your list stays on this phone, and the TV keeps its copy.</string>
     <string name="unpair_action">Disconnect</string>
-    <string name="tmdb_title">TMDB token</string>
-    <string name="tmdb_summary_missing">Not set: for posters and air dates</string>
-    <string name="tmdb_summary_missing_tv">Not set: enter it on your phone, it is shared with this TV</string>
-    <string name="tmdb_summary_set">Set</string>
-    <string name="tmdb_dialog_body">Your own “API Read Access Token” from themoviedb.org. It is shared with your paired TV, so the TV can keep air dates up to date by itself.</string>
-    <string name="tmdb_tv_body">Easier on your phone: a token entered there is shared with this TV.</string>
-    <string name="tmdb_field" translatable="false">API Read Access Token</string>
-    <string name="tmdb_invalid">Paste the long “API Read Access Token”, not the short API key</string>
-    <string name="tmdb_steps_title">How to get a TMDB token</string>
-    <string name="tmdb_steps">1. Create a free account on themoviedb.org.\n2. Open Settings › API and request an API key (personal use).\n3. Copy the “API Read Access Token” and paste it here.</string>
     <string name="services_title">Streaming apps</string>
     <string name="services_summary">Which TV app opens each service</string>
     <string name="services_body">The TV finds each service’s app by itself. Change it here when a show doesn’t open.</string>
@@ -85,8 +78,7 @@
     <string name="dynamic_color">Dynamic color</string>
     <string name="dynamic_color_summary">Use colors from your wallpaper</string>
     <string name="footer" translatable="false">%1$s %2$s</string>
-    <string name="tmdb_attribution" translatable="false">This product uses the TMDB API but is not endorsed or certified by TMDB.</string>
-    <string name="tvmaze_attribution">Air times from TVmaze</string>
+    <string name="tvmaze_attribution">Air dates from TVmaze</string>
     <string name="tv_row_all">All</string>
     <string name="tv_connect_phone">Connect phone</string>
     <string name="tv_connect_phone_summary">Show the code to scan with TV Favorites on your phone</string>
@@ -103,4 +95,8 @@
     <string name="tv_rows_body">The “All” row is added by itself. Android asks once for each extra row.</string>
     <string name="tv_rows_none">No service rows yet: they appear once the list has favorites.</string>
     <string name="tv_rows_add">Add to home screen</string>
+    <plurals name="favorites_count">
+        <item quantity="one">%d favorite</item>
+        <item quantity="other">%d favorites</item>
+    </plurals>
 </resources>

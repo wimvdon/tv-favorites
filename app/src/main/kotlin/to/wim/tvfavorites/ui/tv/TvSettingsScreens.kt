@@ -26,14 +26,20 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.Button
@@ -44,15 +50,14 @@ import androidx.tv.material3.Text
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.qrcode.QRCodeWriter
-import kotlinx.coroutines.launch
 import to.wim.tvfavorites.R
 import to.wim.tvfavorites.app
 import to.wim.tvfavorites.data.Connection
 import to.wim.tvfavorites.launch.Launcher
 import to.wim.tvfavorites.logic.InstalledApp
+import to.wim.tvfavorites.logic.Ordering
 import to.wim.tvfavorites.logic.Pairing
 import to.wim.tvfavorites.logic.ServiceCatalog
-import to.wim.tvfavorites.logic.Tmdb
 import to.wim.tvfavorites.model.ServiceOverride
 import to.wim.tvfavorites.tv.HomeChannels
 import to.wim.tvfavorites.ui.theme.rememberAppVersion
@@ -107,15 +112,13 @@ fun TvSettingsScreen(
     onPair: () -> Unit,
     onServices: () -> Unit,
     onRows: () -> Unit,
+    onRowOrder: () -> Unit,
 ) {
     val app = LocalContext.current.app
-    val scope = rememberCoroutineScope()
     val connection by app.library.connection.collectAsStateWithLifecycle()
     val library by app.library.library.collectAsStateWithLifecycle()
-    val device by app.settings.device.collectAsStateWithLifecycle(to.wim.tvfavorites.data.DeviceState())
-    var editingToken by remember { mutableStateOf(false) }
     val first = remember { FocusRequester() }
-    val token = device.tmdbToken.ifBlank { library?.tmdbToken.orEmpty() }
+    val groupCount = library?.favorites.orEmpty().map { it.serviceId }.distinct().size
     val version = rememberAppVersion()
     TvPage(stringResource(R.string.settings_title)) {
         LazyColumn(Modifier.width(720.dp), verticalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(bottom = 24.dp)) {
@@ -135,9 +138,10 @@ fun TvSettingsScreen(
             item {
                 ListItem(
                     selected = false,
-                    onClick = { editingToken = true },
-                    headlineContent = { Text(stringResource(R.string.tmdb_title)) },
-                    supportingContent = { Text(stringResource(if (token.isBlank()) R.string.tmdb_summary_missing_tv else R.string.tmdb_summary_set)) },
+                    onClick = onRowOrder,
+                    enabled = groupCount > 1,
+                    headlineContent = { Text(stringResource(R.string.tv_row_order_title)) },
+                    supportingContent = { Text(stringResource(R.string.group_order_summary)) },
                 )
             }
             item {
@@ -159,7 +163,7 @@ fun TvSettingsScreen(
             item {
                 Text(
                     stringResource(R.string.footer, stringResource(R.string.app_name), version) + "\n" +
-                        stringResource(R.string.tmdb_attribution) + "\n" + stringResource(R.string.tvmaze_attribution),
+                        stringResource(R.string.tvmaze_attribution),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(16.dp),
@@ -168,30 +172,6 @@ fun TvSettingsScreen(
         }
     }
     LaunchedEffect(Unit) { runCatching { first.requestFocus() } }
-    if (editingToken) {
-        var text by remember { mutableStateOf(device.tmdbToken) }
-        TvDialogFrame(title = stringResource(R.string.tmdb_title), onDismiss = { editingToken = false }) {
-            Text(stringResource(R.string.tmdb_tv_body), style = MaterialTheme.typography.bodyMedium)
-            OutlinedTextField(
-                value = text,
-                onValueChange = { text = it.trim() },
-                label = { androidx.compose.material3.Text(stringResource(R.string.tmdb_field)) },
-                singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth(),
-            )
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Button(
-                    enabled = text.isBlank() || Tmdb.looksLikeToken(text),
-                    onClick = {
-                        editingToken = false
-                        scope.launch { app.library.setTmdbToken(text) }
-                    },
-                ) { Text(stringResource(R.string.action_save)) }
-                OutlinedButton(onClick = { editingToken = false }) { Text(stringResource(R.string.action_cancel)) }
-            }
-        }
-    }
 }
 
 /** Per service: the installed TV app it opens in (picked from a list) and an optional link pattern. */
@@ -303,4 +283,52 @@ fun TvRowsScreen() {
         }
     }
     LaunchedEffect(channels.isNotEmpty()) { runCatching { first.requestFocus() } }
+}
+
+/** The order of the rows after "All" (and of the groups on the phone): select one, then ▲ ▼ and OK. */
+@Composable
+fun TvRowOrderScreen() {
+    val app = LocalContext.current.app
+    val library by app.library.library.collectAsStateWithLifecycle()
+    val groups = Ordering.groups(library?.favorites.orEmpty(), order = library?.groupOrder.orEmpty())
+    var moving by remember { mutableStateOf<String?>(null) }
+    // One focus handle per row, made outside the list.
+    val focus = groups.associate { it.serviceId to remember(it.serviceId) { FocusRequester() } }
+    TvPage(stringResource(R.string.tv_row_order_title)) {
+        Text(stringResource(R.string.tv_row_order_body), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(Modifier.size(12.dp))
+        LazyColumn(Modifier.width(720.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            items(groups, key = { it.serviceId }) { group ->
+                val isMoving = moving == group.serviceId
+                ListItem(
+                    selected = isMoving,
+                    onClick = { moving = if (isMoving) null else group.serviceId },
+                    headlineContent = { Text(group.name) },
+                    supportingContent = {
+                        Text(if (isMoving) stringResource(R.string.tv_row_moving) else pluralStringResource(R.plurals.favorites_count, group.items.size, group.items.size))
+                    },
+                    modifier =
+                        Modifier
+                            .focusRequester(focus.getValue(group.serviceId))
+                            .onPreviewKeyEvent { event ->
+                                if (!isMoving || event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
+                                val index = groups.indexOfFirst { it.serviceId == group.serviceId }
+                                when (event.key) {
+                                    Key.DirectionUp -> app.library.moveGroup(index, (index - 1).coerceAtLeast(0))
+                                    Key.DirectionDown -> app.library.moveGroup(index, (index + 1).coerceAtMost(groups.lastIndex))
+                                    Key.Back, Key.Escape -> moving = null
+                                    else -> return@onPreviewKeyEvent false
+                                }
+                                true
+                            },
+                )
+            }
+        }
+    }
+    // Keeps the remote on the row being moved while the list reorders around it.
+    LaunchedEffect(moving, groups.map { it.serviceId }) {
+        val id = moving ?: groups.firstOrNull()?.serviceId ?: return@LaunchedEffect
+        withFrameNanos { }
+        runCatching { focus[id]?.requestFocus() }
+    }
 }
