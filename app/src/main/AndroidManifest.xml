@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Network: fetching shared links, TMDB, TVmaze and the sync with Firebase (see PRIVACY.md). -->
+    <!-- Network: fetching shared links, TVmaze and the sync with Firebase (see PRIVACY.md). -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Android TV home screen rows: this app's own rows and tiles only (as apps whose rows show up declare it). -->
+    <uses-permission android:name="com.android.providers.tv.permission.READ_EPG_DATA" />
+    <uses-permission android:name="com.android.providers.tv.permission.WRITE_EPG_DATA" />
 
     <!-- One app for phones and Android TV: neither a touch screen nor the TV launcher is required. -->
     <uses-feature android:name="android.software.leanback" android:required="false" />

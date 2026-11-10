@@ -1,6 +1,6 @@
 # Privacy policy
 
-_Last updated: 2026-11-10 (0.1.2: TMDB removed)_
+_Last updated: 2026-11-10 (0.1.3: home screen row permissions)_
 
 TV Favorites keeps a list of shows and movies you saved, on your phone and the TV it is paired
 with. It has no account, no analytics, no advertising and no crash reporting.
@@ -17,6 +17,13 @@ with. It has no account, no analytics, no advertising and no crash reporting.
 - **On each device only**: which household it belongs to and the ids of the TV's home screen rows.
 - **Backed up by Android** (to your Google account, if you turned that on, and when moving to a new
   phone): only your appearance settings and whether the list is grouped by service.
+
+## Permissions
+
+- **Internet and network state**: to read shared pages, TVmaze and the shared list.
+- **TV home screen rows** (`READ_EPG_DATA`, `WRITE_EPG_DATA`, Android TV only): to write the app's
+  own rows and tiles on the home screen. The app reads and changes only its own rows, never the TV
+  guide or other apps' rows.
 
 Anyone who scans the TV's pairing code can see and change the list. Scan it only with your own
 phones.

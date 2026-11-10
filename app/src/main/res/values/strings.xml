@@ -92,8 +92,8 @@
     <string name="tv_pick_app">TV app</string>
     <string name="tv_rows_title">Home screen rows</string>
     <string name="tv_rows_summary">Add a row per streaming service</string>
-    <string name="tv_rows_body">The “All” row is added by itself. Android asks once for each extra row.</string>
-    <string name="tv_rows_none">No service rows yet: they appear once the list has favorites.</string>
+    <string name="tv_rows_body">The “All” row is added by itself; if it’s missing from the home screen, add it here. Android asks once for each row.</string>
+    <string name="tv_rows_none">No rows yet: they appear once the list has favorites.</string>
     <string name="tv_rows_add">Add to home screen</string>
     <plurals name="favorites_count">
         <item quantity="one">%d favorite</item>

@@ -55,6 +55,7 @@ import to.wim.tvfavorites.app
 import to.wim.tvfavorites.data.Connection
 import to.wim.tvfavorites.launch.Launcher
 import to.wim.tvfavorites.logic.InstalledApp
+import to.wim.tvfavorites.logic.ChannelPlan
 import to.wim.tvfavorites.logic.Ordering
 import to.wim.tvfavorites.logic.Pairing
 import to.wim.tvfavorites.logic.ServiceCatalog
@@ -262,7 +263,7 @@ private fun TvOverrideDialog(
 @Composable
 fun TvRowsScreen() {
     val context = LocalContext.current
-    val channels by produceState(emptyMap<String, Long>()) { value = HomeChannels(context).serviceChannels() }
+    val channels by produceState(emptyMap<String, Long>()) { value = HomeChannels(context).channels() }
     val first = remember { FocusRequester() }
     TvPage(stringResource(R.string.tv_rows_title)) {
         Text(stringResource(R.string.tv_rows_body), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -275,7 +276,7 @@ fun TvRowsScreen() {
                 ListItem(
                     selected = false,
                     onClick = { runCatching { context.startActivity(HomeChannels(context).browsableRequest(id)) } },
-                    headlineContent = { Text(ServiceCatalog.nameOf(key)) },
+                    headlineContent = { Text(if (key == ChannelPlan.ALL) stringResource(R.string.tv_row_all) else ServiceCatalog.nameOf(key)) },
                     supportingContent = { Text(stringResource(R.string.tv_rows_add)) },
                     modifier = if (key == channels.keys.firstOrNull()) Modifier.focusRequester(first) else Modifier,
                 )

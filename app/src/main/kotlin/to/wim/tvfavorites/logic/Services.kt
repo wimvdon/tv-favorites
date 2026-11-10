@@ -45,6 +45,7 @@ object ServiceCatalog {
                 hosts = listOf("vtmgo.be", "vtm.be"),
                 tvPackages = listOf("be.vmma.vtm.zenderapp", "be.dpgmedia.vtmgo", "be.vtmgo.androidtv"),
                 appLabels = listOf("VTM GO"),
+                tvLink = ::vtmGoLink,
             ),
             StreamingService(
                 id = "goplay",
@@ -398,6 +399,21 @@ object ServiceCatalog {
 internal fun netflixLink(url: String): String {
     val id = Regex("""/(?:title|watch)/(\d+)""").find(url)?.groupValues?.get(1) ?: return url
     return "https://www.netflix.com/title/$id"
+}
+
+/**
+ * VTM GO's app opens a page from its own scheme with the web address behind it:
+ * vtmgo://www.vtmgo.be/vtmgo/<show>~<id>, as the show pages declare it (`al:ios:url`, November
+ * 2026). The https link only opens the app's start screen. Tracking parameters are dropped.
+ */
+internal fun vtmGoLink(url: String): String {
+    val uri = runCatching { URI(url.trim()) }.getOrNull() ?: return url
+    val host = uri.host?.lowercase(Locale.ROOT) ?: return url
+    if (uri.scheme == "vtmgo") return url
+    if (host != "vtmgo.be" && !host.endsWith(".vtmgo.be")) return url
+    val path = uri.rawPath.orEmpty().trimEnd('/')
+    if (!path.startsWith("/vtmgo/")) return url
+    return "vtmgo://www.vtmgo.be$path"
 }
 
 /** YouTube's TV app understands watch?v= links, not youtu.be or shorts links. */

@@ -28,7 +28,8 @@ app/src/main/kotlin/to/wim/tvfavorites/
     DeepLinks             Which TV app opens a service and in which order links are tried.
     Ordering              Sorting, moving (whole list or within a service), grouping.
     Pairing               Household ids and the QR code's content.
-    ChannelPlan           The home screen rows and their tiles.
+    ChannelPlan           The home screen rows and their tiles; finding rows again, updating tiles.
+    LongPress             A short or a long press of the remote's OK button.
   data/
     LibraryStore          LocalLibraryStore (JSON file) and the interface.
     CloudLibraryStore     Firestore: households/<id>/{members,favorites,settings}.
@@ -77,6 +78,23 @@ installed TV app whose name matches the service. `DeepLinks.plan` then tries, in
 user's link pattern, the link rewritten for the service's app (Netflix, YouTube), the shared link,
 and finally the app's start screen (with a message that the show itself couldn't be opened).
 
+**VTM GO** opens a show from `vtmgo://www.vtmgo.be/vtmgo/<show>~<id>` (the link its pages declare
+for apps); its https link only opens the app's start screen.
+
+**OK and long press on the TV.** The cards handle OK themselves (`LongPressDetector`): a short
+press opens, holding OK opens the actions once (while held, or on release for remotes that don't
+repeat keys). The actions dialog ignores an OK it didn't see pressed, so letting go after a long
+press doesn't press its first button ("Open").
+
+## Home screen rows
+Written like the rows of apps that do show up on the home screen (Nuvio's "Continue watching"):
+the TV provider permissions in the manifest, off the main thread and one sync at a time, each
+row on its own (a failing row doesn't stop the others) and its id saved as soon as it exists.
+Rows are found again by the id they were written with (`<package>/<key>`), so lost ids never
+lead to a second row; leftover duplicates are removed. Tiles are read without a selection (some
+TVs refuse one), updated in place and only rewritten when they changed. Only "All" is offered to
+the home screen by itself; Settings › Home screen rows offers every row, "All" included.
+
 ## Air dates
 `DetailsFetcher` searches TVmaze by the show's title (`/search/shows`); `TvMaze.bestMatch` takes an
 exact name, for regional services one from that country or language
@@ -90,6 +108,8 @@ in the hourly job). Movies get no date: TVmaze only knows series.
 - **Single `app` module.** Logic in plain Kotlin under `logic/`, tested on the JVM.
 - **UI state**: screens collect the repository's `StateFlow`s; navigation is a small back stack
   (`PhoneApp`) or an enum (`TvApp`).
+- **TV text colour**: `TvApp` sets the light text colour of the dark theme for both TV Material and
+  Material 3 (`LocalContentColor`); without it TV Material's text is black.
 - **TV screens** use TV Material (`androidx.tv.material3`) for focusable cards, buttons and list
   items, and Material 3 for text fields; colours come from the same theme.
 - **Strings** in resources only, in all six languages.

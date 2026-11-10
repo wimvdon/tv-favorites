@@ -20,6 +20,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -36,10 +39,27 @@ fun TvDialogFrame(
     onDismiss: () -> Unit,
     content: @Composable () -> Unit,
 ) {
+    // OK still held from the long press that opened this dialog must not press its first button:
+    // only a press of OK that starts in the dialog counts.
+    val okPressedHere = remember { BooleanArray(1) }
     Dialog(onDismissRequest = onDismiss) {
         Column(
             Modifier
-                .width(520.dp)
+                .onPreviewKeyEvent { event ->
+                    if (!event.isOk()) return@onPreviewKeyEvent false
+                    when (event.type) {
+                        KeyEventType.KeyDown -> {
+                            if (event.nativeKeyEvent.repeatCount == 0) okPressedHere[0] = true
+                            !okPressedHere[0]
+                        }
+                        KeyEventType.KeyUp -> {
+                            val swallow = !okPressedHere[0]
+                            okPressedHere[0] = false
+                            swallow
+                        }
+                        else -> false
+                    }
+                }.width(520.dp)
                 .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(24.dp))
                 .padding(28.dp)
                 .verticalScroll(rememberScrollState()),

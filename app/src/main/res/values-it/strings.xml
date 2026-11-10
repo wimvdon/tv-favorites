@@ -91,7 +91,7 @@
     <string name="tv_pick_app">App TV</string>
     <string name="tv_rows_title">Righe della schermata Home</string>
     <string name="tv_rows_summary">Aggiungi una riga per servizio</string>
-    <string name="tv_rows_body">La riga “Tutti” viene aggiunta da sola. Android chiede una volta per ogni riga in più.</string>
+    <string name="tv_rows_body">La riga “Tutti” viene aggiunta da sola; se manca nella schermata Home, aggiungila qui. Android chiede una volta per ogni riga.</string>
     <string name="tv_rows_none">Nessuna riga ancora: compaiono quando la lista ha dei preferiti.</string>
     <string name="tv_rows_add">Aggiungi alla schermata Home</string>
     <plurals name="favorites_count">

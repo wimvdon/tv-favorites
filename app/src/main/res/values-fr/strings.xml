@@ -91,7 +91,7 @@
     <string name="tv_pick_app">Application TV</string>
     <string name="tv_rows_title">Rangées de l’écran d’accueil</string>
     <string name="tv_rows_summary">Ajouter une rangée par service</string>
-    <string name="tv_rows_body">La rangée « Tous » est ajoutée d’elle-même. Android demande une fois par rangée supplémentaire.</string>
+    <string name="tv_rows_body">La rangée « Tous » est ajoutée d’elle-même ; si elle manque sur l’écran d’accueil, ajoutez-la ici. Android demande une fois par rangée.</string>
     <string name="tv_rows_none">Pas encore de rangées : elles apparaissent dès que la liste contient des favoris.</string>
     <string name="tv_rows_add">Ajouter à l’écran d’accueil</string>
     <plurals name="favorites_count">

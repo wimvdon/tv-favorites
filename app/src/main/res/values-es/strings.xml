@@ -91,7 +91,7 @@
     <string name="tv_pick_app">App de TV</string>
     <string name="tv_rows_title">Filas de la pantalla de inicio</string>
     <string name="tv_rows_summary">Añadir una fila por servicio</string>
-    <string name="tv_rows_body">La fila “Todos” se añade sola. Android pregunta una vez por cada fila extra.</string>
+    <string name="tv_rows_body">La fila “Todos” se añade sola; si no aparece en la pantalla de inicio, añádela aquí. Android pregunta una vez por cada fila.</string>
     <string name="tv_rows_none">Aún no hay filas: aparecen cuando la lista tiene favoritos.</string>
     <string name="tv_rows_add">Añadir a la pantalla de inicio</string>
     <plurals name="favorites_count">
