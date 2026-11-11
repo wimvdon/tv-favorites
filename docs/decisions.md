@@ -163,3 +163,17 @@ owner's Cloudflare account. The id is left out now, so `wrangler deploy` creates
 itself (Wrangler's automatic provisioning) and reuses the one bound to the Worker afterwards.
 The owner doesn't have to create anything in Cloudflare. It only holds the add-on's anonymous
 Firebase identity: if it were ever lost, the add-on signs in anew.
+
+## 2026-11-11: Nuvio add-on: content type "favorites", and no auto-play
+
+Nuvio adds a catalog's type to its row name, so type `movie` made every row read "TV Favorites -
+Movie". The add-on now uses its own type `favorites`, with the catalogs named "All" and after each
+service ("Netflix - Favorites"). Nuvio and Stremio pass unknown types through (Nuvio's
+`ContentType.UNKNOWN` keeps the add-on's string), and the Worker ignores the type in its routes, so
+installs that still ask for `movie` keep working.
+
+Auto-play can't pick our streams: Nuvio's `StreamAutoPlaySelector.isPlayable()` rejects every
+stream that has only an `externalUrl`, however many streams there are. A playable `url` instead
+would go to Nuvio's own player, which can't open TV Favorites. So this needs a change in Nuvio
+(a feature request with a working implementation, nuviomedia/nuviotv issue 4425, was closed
+unreviewed because it had no labels).

@@ -8,6 +8,8 @@ test("routes", () => {
   assert.deepEqual(route(["catalog", "movie", "all.json"]), { resource: "catalog", id: "all", laterPage: false });
   assert.deepEqual(route(["catalog", "movie", "all", "skip=100.json"]), { resource: "catalog", id: "all", laterPage: true });
   assert.deepEqual(route(["stream", "movie", "tvfav%3Aabc.json"]), { resource: "stream", id: "tvfav:abc", laterPage: false });
+  // Installs from before the "favorites" type still ask for "movie".
+  assert.deepEqual(route(["catalog", "favorites", "all.json"]), { resource: "catalog", id: "all", laterPage: false });
   assert.equal(route(["catalog", "movie", "all"]), null);
   assert.equal(route(["other", "movie", "x.json"]), null);
   assert.equal(route([]), null);

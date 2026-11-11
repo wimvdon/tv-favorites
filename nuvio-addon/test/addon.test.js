@@ -34,7 +34,10 @@ test("favorites are read as the app writes them, without broken ones", () => {
 test("the manifest has All and one catalog per service, in the user's order", () => {
   assert.deepEqual(manifest(items).catalogs.map((c) => c.id), ["all", "s-vtmgo", "s-netflix"]);
   assert.deepEqual(manifest(items, ["netflix"]).catalogs.map((c) => c.id), ["all", "s-netflix", "s-vtmgo"]);
-  assert.equal(manifest(items).catalogs[1].name, "TV Favorites · VTM GO");
+  assert.equal(manifest(items).catalogs[0].name, "All");
+  assert.equal(manifest(items).catalogs[1].name, "VTM GO");
+  assert.deepEqual(manifest(items).types, ["favorites"]);
+  assert.ok(manifest(items).catalogs.every((c) => c.type === "favorites"));
   assert.deepEqual(manifest(items).idPrefixes, ["tvfav:"]);
 });
 
@@ -42,6 +45,7 @@ test("catalogs list landscape tiles in the user's order", () => {
   const all = catalog("all", items);
   assert.deepEqual(all.metas.map((m) => m.id), ["tvfav:2", "tvfav:1"]);
   assert.equal(all.metas[0].posterShape, "landscape");
+  assert.equal(all.metas[0].type, "favorites");
   assert.equal(all.metas[0].poster, "https://i/2.jpg");
   assert.equal(all.metas[0].releaseInfo, "2026-11-03 · S6E4");
   assert.deepEqual(catalog("s-netflix", items).metas.map((m) => m.name), ["Dark"]);
