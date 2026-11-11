@@ -104,8 +104,10 @@ An addition to the app's own TV screens and home screen rows, for people who bro
 - **Reading the list:** the Worker has one anonymous Firebase identity (kept in its KV store) and
   joins a household with the join key from the address, checked by `firestore.rules` as for a
   phone. It only reads favorites and `settings/groups`; it writes nothing else.
-- **Catalogs:** "TV Favorites" (all) and one per service in the user's order, landscape tiles,
-  ids `tvfav:<favorite id>`, type `movie` (Nuvio then lists the "streams" at once).
+- **Catalogs:** "All" and one per service (named after it) in the user's order, landscape tiles,
+  ids `tvfav:<favorite id>`, type `favorites` (not a series, so Nuvio lists the "streams" at once; not
+  `movie`, as Nuvio adds the type to every row name). Nuvio never auto-plays them: its auto-play skips
+  streams that are only an external link.
 - **Opening:** the only stream is `tvfavorites://open?…`, the home screen tiles' link, so TV
   Favorites on the TV opens it with its full plan (`DeepLinks.plan`). `OpenFavoriteActivity` is
   `BROWSABLE` for this, as Nuvio opens external links like a browser. There is no second stream

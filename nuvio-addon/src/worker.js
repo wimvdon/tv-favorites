@@ -1,9 +1,10 @@
 // The TV Favorites add-on for Nuvio (and Stremio), as a Cloudflare Worker.
 //
 //   /<household id>~<join key>/manifest.json
-//   /<household id>~<join key>/catalog/movie/<catalog id>[/<extra>].json
-//   /<household id>~<join key>/meta/movie/tvfav:<favorite id>.json
-//   /<household id>~<join key>/stream/movie/tvfav:<favorite id>.json
+//   /<household id>~<join key>/catalog/favorites/<catalog id>[/<extra>].json
+//   /<household id>~<join key>/meta/favorites/tvfav:<favorite id>.json
+//   /<household id>~<join key>/stream/favorites/tvfav:<favorite id>.json
+// The type isn't checked: installs from before the "favorites" type still ask for "movie".
 
 import { catalog, favoriteFromDocument, manifest, meta, parseConfig, streams } from "./addon.js";
 import { AccessDenied, HouseholdReader } from "./firebase.js";
