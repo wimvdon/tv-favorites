@@ -8,8 +8,9 @@ workers_dev = true
 FIREBASE_PROJECT_ID = "tv-favorites"
 
 # The add-on's own anonymous Firebase identity (not a secret of the user's list).
+# No id on purpose: the first `wrangler deploy` creates the namespace in the Cloudflare account
+# (automatic provisioning) and later deploys keep using the one bound to the Worker.
 [[kv_namespaces]]
 binding = "IDENTITY"
-id = "b27f64f25ffc43eb95e53ad07d5d7588"
 
 # FIREBASE_API_KEY is a secret, set by the deploy workflow from the repository secret.
