@@ -13,7 +13,7 @@ class NuvioAddonTest {
     fun `the address carries the household and its key`() {
         val household = Household("ABCDEFGHIJKLMNOPQRSTUVWX", "abcdefghijklmnopqrstuvwxyz012345")
         assertEquals(
-            "https://tv-favorites-nuvio.wim-d57.workers.dev/ABCDEFGHIJKLMNOPQRSTUVWX~abcdefghijklmnopqrstuvwxyz012345/manifest.json",
+            "https://tv-favorites-nuvio.wim-8af.workers.dev/ABCDEFGHIJKLMNOPQRSTUVWX~abcdefghijklmnopqrstuvwxyz012345/manifest.json",
             NuvioAddon.address(household),
         )
     }

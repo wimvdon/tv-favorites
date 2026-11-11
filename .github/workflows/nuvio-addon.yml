@@ -51,4 +51,4 @@ jobs:
           fi
           npx --yes wrangler@4.160.0 deploy
           printf '%s' "$FIREBASE_API_KEY" | npx --yes wrangler@4.160.0 secret put FIREBASE_API_KEY
-          echo "### Deployed: https://tv-favorites-nuvio.wim-d57.workers.dev" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Deployed: https://tv-favorites-nuvio.wim-8af.workers.dev" >> "$GITHUB_STEP_SUMMARY"
