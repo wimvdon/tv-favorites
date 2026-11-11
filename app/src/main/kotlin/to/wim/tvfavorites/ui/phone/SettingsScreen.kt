@@ -1,9 +1,15 @@
 package to.wim.tvfavorites.ui.phone
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Intent
 import androidx.core.net.toUri
 import android.os.Build
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
@@ -21,6 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
@@ -36,6 +43,7 @@ import to.wim.tvfavorites.data.ThemeMode
 import to.wim.tvfavorites.data.await
 import to.wim.tvfavorites.logic.Pairing
 import to.wim.tvfavorites.ui.theme.AppearanceSettings
+import to.wim.tvfavorites.ui.theme.ExpandableSetting
 import to.wim.tvfavorites.ui.theme.SettingItem
 import to.wim.tvfavorites.ui.theme.SettingsBlock
 import to.wim.tvfavorites.ui.theme.SettingsFooter
@@ -90,7 +98,7 @@ fun SettingsScreen(
     ) {
         item {
             SettingsSection(stringResource(R.string.section_connection)) {
-                when (connection) {
+                when (val current = connection) {
                     Connection.Unavailable -> SettingsBlock { Text(stringResource(R.string.sync_unavailable), style = MaterialTheme.typography.bodyMedium) }
                     Connection.Local ->
                         SettingItem(
@@ -109,15 +117,36 @@ fun SettingsScreen(
                             icon = painterResource(R.drawable.ic_tv),
                         )
                         val nuvioTitle = stringResource(R.string.nuvio_title)
-                        SettingItem(
+                        val nuvioAddress = NuvioAddon.address(current.household)
+                        ExpandableSetting(
+                            key = "nuvio",
                             title = nuvioTitle,
-                            summary = stringResource(R.string.nuvio_share),
-                            onClick = {
-                                val household = (connection as? Connection.Shared)?.household ?: return@SettingItem
-                                val send = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, NuvioAddon.address(household))
-                                runCatching { context.startActivity(Intent.createChooser(send, nuvioTitle)) }
-                            },
-                        )
+                            summary = stringResource(R.string.nuvio_summary),
+                        ) {
+                            Text(stringResource(R.string.nuvio_body_phone), style = MaterialTheme.typography.bodyMedium)
+                            SelectionContainer {
+                                Text(nuvioAddress, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
+                            }
+                            Text(
+                                stringResource(R.string.nuvio_note),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                OutlinedButton(onClick = {
+                                    context.getSystemService(ClipboardManager::class.java)
+                                        ?.setPrimaryClip(ClipData.newPlainText(nuvioTitle, nuvioAddress))
+                                    // Android 13 and later confirm a copy themselves.
+                                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                                        scope.launch { snackbar.showSnackbar(resources.getString(R.string.nuvio_copied)) }
+                                    }
+                                }) { Text(stringResource(R.string.action_copy)) }
+                                OutlinedButton(onClick = {
+                                    val send = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, nuvioAddress)
+                                    runCatching { context.startActivity(Intent.createChooser(send, nuvioTitle)) }
+                                }) { Text(stringResource(R.string.action_share)) }
+                            }
+                        }
                         SettingItem(
                             title = stringResource(R.string.unpair_title),
                             summary = null,

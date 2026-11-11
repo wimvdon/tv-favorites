@@ -10,6 +10,8 @@
     <string name="action_delete">Delete</string>
     <string name="action_done">Done</string>
     <string name="action_edit">Edit</string>
+    <string name="action_copy">Copy</string>
+    <string name="action_share">Share</string>
     <string name="action_open">Open</string>
     <string name="action_move">Move</string>
     <string name="action_reset">Reset</string>
@@ -103,5 +105,6 @@
     <string name="nuvio_summary">Your favorites as rows in Nuvio</string>
     <string name="nuvio_body">Add this address in Nuvio, under add-ons. Nuvio then shows your favorites and opens them through TV Favorites in the streaming app. Scan the code with your phone to copy the address.</string>
     <string name="nuvio_note">Anyone with this address can see your list. Only add it on your own devices.</string>
-    <string name="nuvio_share">Share or copy the address to add your favorites in Nuvio</string>
+    <string name="nuvio_body_phone">Add this address in Nuvio, under add-ons. Nuvio then shows your favorites and opens them through TV Favorites in the streaming app.</string>
+    <string name="nuvio_copied">Address copied</string>
 </resources>
