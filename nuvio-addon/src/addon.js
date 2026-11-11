@@ -133,7 +133,8 @@ export function meta(id, items) {
 
 /**
  * How to watch one favorite: through TV Favorites on the TV, which knows each service's app and
- * link (and falls back to the app's start screen), or the shared link itself.
+ * link (and falls back to the app's start screen). One stream only: the shared link on its own
+ * was only for a TV without TV Favorites, and the owner didn't want it in the list.
  */
 export function streams(id, items) {
   const item = find(id, items);
@@ -142,7 +143,6 @@ export function streams(id, items) {
   return {
     streams: [
       { name: "TV Favorites", title: service, description: service, externalUrl: openLink(item) },
-      { name: "Link", title: hostOf(item.url) || item.url, description: hostOf(item.url) || item.url, externalUrl: item.url },
     ],
   };
 }
@@ -158,12 +158,4 @@ function find(id, items) {
   if (!raw.startsWith(ID_PREFIX)) return null;
   const key = raw.slice(ID_PREFIX.length);
   return items.find((i) => i.id === key) ?? null;
-}
-
-function hostOf(url) {
-  try {
-    return new URL(url).host.replace(/^www\./, "");
-  } catch {
-    return "";
-  }
 }

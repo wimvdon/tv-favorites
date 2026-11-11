@@ -106,10 +106,10 @@ An addition to the app's own TV screens and home screen rows, for people who bro
   phone. It only reads favorites and `settings/groups`; it writes nothing else.
 - **Catalogs:** "TV Favorites" (all) and one per service in the user's order, landscape tiles,
   ids `tvfav:<favorite id>`, type `movie` (Nuvio then lists the "streams" at once).
-- **Opening:** the first stream is `tvfavorites://open?…`, the home screen tiles' link, so TV
+- **Opening:** the only stream is `tvfavorites://open?…`, the home screen tiles' link, so TV
   Favorites on the TV opens it with its full plan (`DeepLinks.plan`). `OpenFavoriteActivity` is
-  `BROWSABLE` for this, as Nuvio opens external links like a browser. The second stream is the
-  shared link itself, for TVs without TV Favorites.
+  `BROWSABLE` for this, as Nuvio opens external links like a browser. There is no second stream
+  with the shared link itself: the owner didn't want it in the list (2026-11-11).
 - **Address:** `NuvioAddon.address` (TV: Settings › Nuvio add-on, with a QR code; phone: Settings › Nuvio add-on, with Copy and Share).
   The service names are copied in `nuvio-addon/src/services.json`; `NuvioAddonTest` checks them.
 - **Deploy:** `.github/workflows/nuvio-addon.yml` on changes in `nuvio-addon/` (needs the
