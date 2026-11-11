@@ -99,4 +99,9 @@
         <item quantity="many">%d favoritos</item>
         <item quantity="other">%d favoritos</item>
     </plurals>
+    <string name="nuvio_title">Complemento de Nuvio</string>
+    <string name="nuvio_summary">Tus favoritos como filas en Nuvio</string>
+    <string name="nuvio_body">Añade esta dirección en Nuvio, en los complementos. Nuvio mostrará tus favoritos y los abrirá a través de TV Favorites en la app del servicio de streaming. Escanea el código con el móvil para copiar la dirección.</string>
+    <string name="nuvio_note">Cualquiera con esta dirección puede ver tu lista. Añádela solo en tus propios dispositivos.</string>
+    <string name="nuvio_share">Comparte o copia la dirección para añadir tus favoritos en Nuvio</string>
 </resources>

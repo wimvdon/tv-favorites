@@ -9,6 +9,9 @@ Save shows and movies from any streaming service on your phone and watch them fr
   OK to open a show in its streaming app. Works on its own: the phone is only needed to add shows.
 - **Pairing:** on the TV, open **Connect phone**; on the phone, **Settings › Connect to TV** and scan
   the code.
+- **Nuvio (optional):** your favorites as rows in [Nuvio](https://nuvio.tv) too, through a small
+  add-on ([`nuvio-addon/`](nuvio-addon/README.md)). Its address is in **Settings › Nuvio add-on**
+  (TV) or can be shared from the phone's Settings once paired.
 
 Kotlin, Jetpack Compose, Material 3 and TV Material, Firebase for the shared list. Android 8.0+.
 See the [privacy policy](PRIVACY.md) and [architecture](docs/architecture.md).

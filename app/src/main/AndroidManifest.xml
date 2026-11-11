@@ -58,7 +58,7 @@
             </intent-filter>
         </activity>
 
-        <!-- Opens a favorite from a tile on the TV's home screen. -->
+        <!-- Opens a favorite from a tile on the TV's home screen, or from Nuvio (the add-on's link). -->
         <activity
             android:name=".launch.OpenFavoriteActivity"
             android:exported="true"
@@ -68,6 +68,8 @@
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
+                <!-- Nuvio opens an add-on's links as a browser would. -->
+                <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="tvfavorites" android:host="open" />
             </intent-filter>
         </activity>

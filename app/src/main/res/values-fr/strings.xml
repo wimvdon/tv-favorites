@@ -99,4 +99,9 @@
         <item quantity="many">%d favoris</item>
         <item quantity="other">%d favoris</item>
     </plurals>
+    <string name="nuvio_title">Module Nuvio</string>
+    <string name="nuvio_summary">Vos favoris en rangées dans Nuvio</string>
+    <string name="nuvio_body">Ajoutez cette adresse dans Nuvio, dans les modules. Nuvio affiche alors vos favoris et les ouvre via TV Favorites dans l’app du service de streaming. Scannez le code avec votre téléphone pour copier l’adresse.</string>
+    <string name="nuvio_note">Toute personne ayant cette adresse peut voir votre liste. Ajoutez-la uniquement sur vos propres appareils.</string>
+    <string name="nuvio_share">Partagez ou copiez l’adresse pour ajouter vos favoris dans Nuvio</string>
 </resources>

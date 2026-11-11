@@ -143,3 +143,15 @@ updated in place. Still the platform `TvContract` API, no `tvprovider` library. 
 through `vtmgo://` (what its pages declare for apps, November 2026), as its https links only
 opened the app's start screen; the https link stays as the fallback.
 
+## 2026-11-11: A Nuvio add-on, next to the app's own TV screens
+
+Owner's request: the favorites also as rows in Nuvio. Nothing like it existed (Stremio/Nuvio
+catalog add-ons list Trakt or library items and play video files; none opens official apps on a
+show). Built as the add-on protocol Nuvio speaks (Stremio's), on a Cloudflare Worker like the
+owner's other services, in plain JavaScript without packages (tested with `node --test`). It reads
+the list as a household member (joining with the key in its address), so `firestore.rules` stay
+as they are and no server key can read every household. Each favorite opens through TV
+Favorites' own `tvfavorites://open` link (made `BROWSABLE`), as Nuvio opens one link only and
+TV Favorites knows each service's app and fallbacks. Deployed from GitHub Actions; the
+Cloudflare MCP server can't deploy Workers.
+

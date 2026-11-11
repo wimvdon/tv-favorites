@@ -29,6 +29,7 @@ import kotlinx.coroutines.launch
 import to.wim.tvfavorites.R
 import to.wim.tvfavorites.app
 import to.wim.tvfavorites.data.Connection
+import to.wim.tvfavorites.logic.NuvioAddon
 import to.wim.tvfavorites.data.DeviceState
 import to.wim.tvfavorites.data.Settings
 import to.wim.tvfavorites.data.ThemeMode
@@ -106,6 +107,16 @@ fun SettingsScreen(
                             onClick = ::scan,
                             enabled = !busy,
                             icon = painterResource(R.drawable.ic_tv),
+                        )
+                        val nuvioTitle = stringResource(R.string.nuvio_title)
+                        SettingItem(
+                            title = nuvioTitle,
+                            summary = stringResource(R.string.nuvio_share),
+                            onClick = {
+                                val household = (connection as? Connection.Shared)?.household ?: return@SettingItem
+                                val send = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, NuvioAddon.address(household))
+                                runCatching { context.startActivity(Intent.createChooser(send, nuvioTitle)) }
+                            },
                         )
                         SettingItem(
                             title = stringResource(R.string.unpair_title),
