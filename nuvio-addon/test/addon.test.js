@@ -60,7 +60,7 @@ test("meta and streams for one favorite", () => {
   assert.equal(meta("tt123", items), null);
   const s = streams("tvfav:2", items).streams;
   assert.equal(s[0].externalUrl, openLink(items[1]));
-  assert.equal(s[1].externalUrl, "https://www.vtmgo.be/vtmgo/een-echte-job~3438");
+  assert.equal(s.length, 1);
   assert.equal(s[0].title, "VTM GO");
   assert.deepEqual(streams("tvfav:9", items).streams, []);
 });
