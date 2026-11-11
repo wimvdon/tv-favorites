@@ -10,6 +10,8 @@
     <string name="action_delete">Verwijderen</string>
     <string name="action_done">Klaar</string>
     <string name="action_edit">Bewerken</string>
+    <string name="action_copy">Kopiëren</string>
+    <string name="action_share">Delen</string>
     <string name="action_open">Openen</string>
     <string name="action_move">Verplaatsen</string>
     <string name="action_reset">Herstellen</string>
@@ -102,5 +104,6 @@
     <string name="nuvio_summary">Je favorieten als rijen in Nuvio</string>
     <string name="nuvio_body">Voeg dit adres toe in Nuvio, bij de add-ons. Nuvio toont dan je favorieten en opent ze via TV Favorites in de app van de streamingdienst. Scan de code met je telefoon om het adres te kopiëren.</string>
     <string name="nuvio_note">Wie dit adres heeft, kan je lijst zien. Voeg het alleen toe op je eigen toestellen.</string>
-    <string name="nuvio_share">Deel of kopieer het adres om je favorieten toe te voegen in Nuvio</string>
+    <string name="nuvio_body_phone">Voeg dit adres toe in Nuvio, bij de add-ons. Nuvio toont dan je favorieten en opent ze via TV Favorites in de app van de streamingdienst.</string>
+    <string name="nuvio_copied">Adres gekopieerd</string>
 </resources>

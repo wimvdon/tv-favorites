@@ -110,7 +110,7 @@ An addition to the app's own TV screens and home screen rows, for people who bro
   Favorites on the TV opens it with its full plan (`DeepLinks.plan`). `OpenFavoriteActivity` is
   `BROWSABLE` for this, as Nuvio opens external links like a browser. The second stream is the
   shared link itself, for TVs without TV Favorites.
-- **Address:** `NuvioAddon.address` (TV: Settings › Nuvio add-on, with a QR code; phone: share).
+- **Address:** `NuvioAddon.address` (TV: Settings › Nuvio add-on, with a QR code; phone: Settings › Nuvio add-on, with Copy and Share).
   The service names are copied in `nuvio-addon/src/services.json`; `NuvioAddonTest` checks them.
 - **Deploy:** `.github/workflows/nuvio-addon.yml` on changes in `nuvio-addon/` (needs the
   `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets; passes `FIREBASE_API_KEY` on).

@@ -10,6 +10,8 @@
     <string name="action_delete">Eliminar</string>
     <string name="action_done">Listo</string>
     <string name="action_edit">Editar</string>
+    <string name="action_copy">Copiar</string>
+    <string name="action_share">Compartir</string>
     <string name="action_open">Abrir</string>
     <string name="action_move">Mover</string>
     <string name="action_reset">Restablecer</string>
@@ -103,5 +105,6 @@
     <string name="nuvio_summary">Tus favoritos como filas en Nuvio</string>
     <string name="nuvio_body">Añade esta dirección en Nuvio, en los complementos. Nuvio mostrará tus favoritos y los abrirá a través de TV Favorites en la app del servicio de streaming. Escanea el código con el móvil para copiar la dirección.</string>
     <string name="nuvio_note">Cualquiera con esta dirección puede ver tu lista. Añádela solo en tus propios dispositivos.</string>
-    <string name="nuvio_share">Comparte o copia la dirección para añadir tus favoritos en Nuvio</string>
+    <string name="nuvio_body_phone">Añade esta dirección en Nuvio, en los complementos. Nuvio mostrará tus favoritos y los abrirá a través de TV Favorites en la app del servicio de streaming.</string>
+    <string name="nuvio_copied">Dirección copiada</string>
 </resources>
