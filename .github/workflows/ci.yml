@@ -45,6 +45,11 @@ jobs:
       - name: Test release scripts
         run: python3 -m unittest discover -s scripts/tests -v
 
+      - name: Test the Nuvio add-on
+        # Plain Node (no packages): the runner's own Node is enough.
+        working-directory: nuvio-addon
+        run: node --test
+
       - name: Unit tests
         run: ./gradlew testDebugUnitTest
 

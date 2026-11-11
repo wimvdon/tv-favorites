@@ -5,6 +5,7 @@
 | Check | Command | Catches |
 |---|---|---|
 | Release script tests | `python3 -m unittest discover -s scripts/tests` | Version maths, keystore-secret decoding |
+| Nuvio add-on tests | `cd nuvio-addon && node --test` | The add-on's answers, routes, joining and reading the list (fake Firebase) |
 | Unit tests | `./gradlew testDebugUnitTest` | Logic bugs in plain-Kotlin classes (`app/src/test/`) |
 | Lint | `./gradlew lintDebug` | Android API misuse, missing translations, accessibility, hard-coded text, … (errors fail the build) |
 | Debug build | `./gradlew assembleDebug` | Compile errors; produces the APK to test on the phone |
@@ -26,7 +27,7 @@ python3 -m unittest discover -s scripts/tests
   (`PageMetadataTest`), TVmaze parsing and regional matching, building a new favorite, landscape pictures (`LookupTest`),
   air date choice, refresh timing and time zones (`AiringTest`), service detection, finding the TV
   app and the order of links tried (`DeepLinksTest`), reordering, grouping and the group order (`OrderingTest`),
-  pairing codes (`PairingTest`), cookie and privacy walls (`ConsentGateTest`), home screen rows, finding them again and updating tiles in place (`ChannelPlanTest`), short and long presses of OK (`LongPressTest`), the local list file and
+  pairing codes (`PairingTest`), cookie and privacy walls (`ConsentGateTest`), home screen rows, finding them again and updating tiles in place (`ChannelPlanTest`), short and long presses of OK (`LongPressTest`), the Nuvio add-on address and its copy of the service names (`NuvioAddonTest`), the local list file and
   stored channel ids (`LocalLibraryStoreTest`), backup rules (`BackupRulesTest`).
 - Not covered by unit tests (needs a device): Firestore sync, the QR scanner, starting other apps,
   the TV home screen. Check those by hand (below).

@@ -1,6 +1,6 @@
 # Privacy policy
 
-_Last updated: 2026-11-10 (0.1.3: home screen row permissions)_
+_Last updated: 2026-11-11 (Nuvio add-on)_
 
 TV Favorites keeps a list of shows and movies you saved, on your phone and the TV it is paired
 with. It has no account, no analytics, no advertising and no crash reporting.
@@ -36,6 +36,12 @@ phones.
   TVmaze id, to find when the latest episode aired. Both the phone and the TV ask.
 - **Google Firebase**, for the anonymous sign-in and the shared list.
 - **Picture hosts** of the streaming services, to show their pictures.
+- **The Nuvio add-on** (`tv-favorites-nuvio.wim-d57.workers.dev`, Cloudflare), only if you add
+  its address in Nuvio. Nuvio then asks the add-on for your list; the add-on reads it from
+  Firebase as a member of your household (it joins with the key in the address) and answers with
+  the titles, descriptions, pictures and links. It keeps nothing but its own anonymous sign-in.
+  Anyone with the address can see the list, as with the TV's pairing code. The add-on and Nuvio
+  are optional; the apps work without them.
 
 ## Removing your data
 

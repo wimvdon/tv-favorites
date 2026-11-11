@@ -40,6 +40,7 @@ app/src/main/kotlin/to/wim/tvfavorites/
   tv/                   HomeChannels (TvContract rows), HomeChannelsJob, InitializeProgramsReceiver.
   ui/                   MainActivity, phone/ screens, tv/ screens, theme/ (shared design kit).
 firebase/               Firestore rules and config (deployed with the Firebase CLI).
+nuvio-addon/            The Nuvio add-on: a Cloudflare Worker (plain JavaScript, `node --test`).
 ```
 
 ## Sync
@@ -94,6 +95,25 @@ Rows are found again by the id they were written with (`<package>/<key>`), so lo
 lead to a second row; leftover duplicates are removed. Tiles are read without a selection (some
 TVs refuse one), updated in place and only rewritten when they changed. Only "All" is offered to
 the home screen by itself; Settings › Home screen rows offers every row, "All" included.
+
+## Nuvio add-on
+An addition to the app's own TV screens and home screen rows, for people who browse in Nuvio.
+`nuvio-addon/` is a Cloudflare Worker that speaks the Stremio add-on protocol (Nuvio's add-ons):
+`/<household id>~<join key>/manifest.json`, then `catalog`, `meta` and `stream` per favorite.
+
+- **Reading the list:** the Worker has one anonymous Firebase identity (kept in its KV store) and
+  joins a household with the join key from the address, checked by `firestore.rules` as for a
+  phone. It only reads favorites and `settings/groups`; it writes nothing else.
+- **Catalogs:** "TV Favorites" (all) and one per service in the user's order, landscape tiles,
+  ids `tvfav:<favorite id>`, type `movie` (Nuvio then lists the "streams" at once).
+- **Opening:** the first stream is `tvfavorites://open?…`, the home screen tiles' link, so TV
+  Favorites on the TV opens it with its full plan (`DeepLinks.plan`). `OpenFavoriteActivity` is
+  `BROWSABLE` for this, as Nuvio opens external links like a browser. The second stream is the
+  shared link itself, for TVs without TV Favorites.
+- **Address:** `NuvioAddon.address` (TV: Settings › Nuvio add-on, with a QR code; phone: share).
+  The service names are copied in `nuvio-addon/src/services.json`; `NuvioAddonTest` checks them.
+- **Deploy:** `.github/workflows/nuvio-addon.yml` on changes in `nuvio-addon/` (needs the
+  `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets; passes `FIREBASE_API_KEY` on).
 
 ## Air dates
 `DetailsFetcher` searches TVmaze by the show's title (`/search/shows`); `TvMaze.bestMatch` takes an

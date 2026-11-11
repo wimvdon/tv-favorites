@@ -1,0 +1,8 @@
+{
+  "name": "tv-favorites-nuvio-addon",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  }
+}

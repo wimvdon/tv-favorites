@@ -98,4 +98,9 @@
         <item quantity="one">%d favoriet</item>
         <item quantity="other">%d favorieten</item>
     </plurals>
+    <string name="nuvio_title">Nuvio-add-on</string>
+    <string name="nuvio_summary">Je favorieten als rijen in Nuvio</string>
+    <string name="nuvio_body">Voeg dit adres toe in Nuvio, bij de add-ons. Nuvio toont dan je favorieten en opent ze via TV Favorites in de app van de streamingdienst. Scan de code met je telefoon om het adres te kopiëren.</string>
+    <string name="nuvio_note">Wie dit adres heeft, kan je lijst zien. Voeg het alleen toe op je eigen toestellen.</string>
+    <string name="nuvio_share">Deel of kopieer het adres om je favorieten toe te voegen in Nuvio</string>
 </resources>

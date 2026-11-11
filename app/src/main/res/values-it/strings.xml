@@ -99,4 +99,9 @@
         <item quantity="many">%d preferiti</item>
         <item quantity="other">%d preferiti</item>
     </plurals>
+    <string name="nuvio_title">Componente aggiuntivo Nuvio</string>
+    <string name="nuvio_summary">I tuoi preferiti come righe in Nuvio</string>
+    <string name="nuvio_body">Aggiungi questo indirizzo in Nuvio, tra i componenti aggiuntivi. Nuvio mostrerà i tuoi preferiti e li aprirà tramite TV Favorites nell’app del servizio di streaming. Scansiona il codice con il telefono per copiare l’indirizzo.</string>
+    <string name="nuvio_note">Chiunque abbia questo indirizzo può vedere la tua lista. Aggiungilo solo sui tuoi dispositivi.</string>
+    <string name="nuvio_share">Condividi o copia l’indirizzo per aggiungere i tuoi preferiti in Nuvio</string>
 </resources>

@@ -56,6 +56,7 @@ import to.wim.tvfavorites.data.Connection
 import to.wim.tvfavorites.launch.Launcher
 import to.wim.tvfavorites.logic.InstalledApp
 import to.wim.tvfavorites.logic.ChannelPlan
+import to.wim.tvfavorites.logic.NuvioAddon
 import to.wim.tvfavorites.logic.Ordering
 import to.wim.tvfavorites.logic.Pairing
 import to.wim.tvfavorites.logic.ServiceCatalog
@@ -114,6 +115,7 @@ fun TvSettingsScreen(
     onServices: () -> Unit,
     onRows: () -> Unit,
     onRowOrder: () -> Unit,
+    onNuvio: () -> Unit,
 ) {
     val app = LocalContext.current.app
     val connection by app.library.connection.collectAsStateWithLifecycle()
@@ -161,6 +163,16 @@ fun TvSettingsScreen(
                     supportingContent = { Text(stringResource(R.string.tv_rows_summary)) },
                 )
             }
+            if (connection is Connection.Shared) {
+                item {
+                    ListItem(
+                        selected = false,
+                        onClick = onNuvio,
+                        headlineContent = { Text(stringResource(R.string.nuvio_title)) },
+                        supportingContent = { Text(stringResource(R.string.nuvio_summary)) },
+                    )
+                }
+            }
             item {
                 Text(
                     stringResource(R.string.footer, stringResource(R.string.app_name), version) + "\n" +
@@ -173,6 +185,36 @@ fun TvSettingsScreen(
         }
     }
     LaunchedEffect(Unit) { runCatching { first.requestFocus() } }
+}
+
+/** The address of the Nuvio add-on, as text and as a QR code to copy it with a phone. */
+@Composable
+fun TvNuvioScreen(onDone: () -> Unit) {
+    val app = LocalContext.current.app
+    val connection by app.library.connection.collectAsStateWithLifecycle()
+    val household = (connection as? Connection.Shared)?.household
+    val done = remember { FocusRequester() }
+    TvPage(stringResource(R.string.nuvio_title)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(40.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(300.dp).background(androidx.compose.ui.graphics.Color.White, RoundedCornerShape(16.dp)).padding(16.dp), contentAlignment = Alignment.Center) {
+                if (household != null) {
+                    val bitmap = remember(household) { qrBitmap(NuvioAddon.address(household), 512) }
+                    Image(bitmap.asImageBitmap(), contentDescription = stringResource(R.string.nuvio_title), modifier = Modifier.fillMaxSize())
+                } else {
+                    Text(stringResource(R.string.tv_qr_waiting), color = androidx.compose.ui.graphics.Color.Black)
+                }
+            }
+            Column(Modifier.width(560.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(stringResource(R.string.nuvio_body), style = MaterialTheme.typography.bodyLarge)
+                if (household != null) {
+                    Text(NuvioAddon.address(household), style = MaterialTheme.typography.bodyMedium)
+                }
+                Text(stringResource(R.string.nuvio_note), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Button(onClick = onDone, modifier = Modifier.focusRequester(done)) { Text(stringResource(R.string.action_done)) }
+            }
+        }
+    }
+    LaunchedEffect(Unit) { runCatching { done.requestFocus() } }
 }
 
 /** Per service: the installed TV app it opens in (picked from a list) and an optional link pattern. */

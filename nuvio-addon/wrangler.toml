@@ -1,0 +1,15 @@
+# The TV Favorites add-on for Nuvio. Deployed by .github/workflows/nuvio-addon.yml.
+name = "tv-favorites-nuvio"
+main = "src/worker.js"
+compatibility_date = "2026-11-01"
+workers_dev = true
+
+[vars]
+FIREBASE_PROJECT_ID = "tv-favorites"
+
+# The add-on's own anonymous Firebase identity (not a secret of the user's list).
+[[kv_namespaces]]
+binding = "IDENTITY"
+id = "b27f64f25ffc43eb95e53ad07d5d7588"
+
+# FIREBASE_API_KEY is a secret, set by the deploy workflow from the repository secret.

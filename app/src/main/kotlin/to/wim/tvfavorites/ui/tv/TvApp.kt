@@ -21,7 +21,7 @@ import to.wim.tvfavorites.ui.theme.AppTheme
 import to.wim.tvfavorites.data.ThemeMode
 
 /** The TV's pages. */
-enum class TvRoute { Home, Pair, Settings, Services, Rows, RowOrder }
+enum class TvRoute { Home, Pair, Settings, Services, Rows, RowOrder, Nuvio }
 
 /**
  * The TV app: works on its own once set up. It keeps the shared list, the home screen rows and
@@ -49,7 +49,7 @@ fun TvApp() {
     }
 
     BackHandler(enabled = route != TvRoute.Home) {
-        route = if (route == TvRoute.Services || route == TvRoute.Rows || route == TvRoute.RowOrder) TvRoute.Settings else TvRoute.Home
+        route = if (route in setOf(TvRoute.Services, TvRoute.Rows, TvRoute.RowOrder, TvRoute.Nuvio)) TvRoute.Settings else TvRoute.Home
     }
 
     // Material 3 for dialogs and text fields, TV Material for focusable cards and buttons; TVs are dark.
@@ -102,10 +102,12 @@ fun TvApp() {
                             onServices = { route = TvRoute.Services },
                             onRows = { route = TvRoute.Rows },
                             onRowOrder = { route = TvRoute.RowOrder },
+                            onNuvio = { route = TvRoute.Nuvio },
                         )
                     TvRoute.Services -> TvServicesScreen()
                     TvRoute.Rows -> TvRowsScreen()
                     TvRoute.RowOrder -> TvRowOrderScreen()
+                    TvRoute.Nuvio -> TvNuvioScreen(onDone = { route = TvRoute.Settings })
                 }
             }
         }
