@@ -6,6 +6,12 @@ import serviceNames from "./services.json" with { type: "json" };
 export const ID_PREFIX = "tvfav:";
 export const ALL = "all";
 const SERVICE_PREFIX = "s-";
+/**
+ * The content type of every catalog and favorite. Nuvio adds a catalog's type to its row name
+ * ("All - Favorites"), so the old "movie" made every row say "Movie". Nuvio and Stremio pass an
+ * unknown type through as is, and the routes accept any type, so older installs keep working.
+ */
+export const TYPE = "favorites";
 
 /** The household in the add-on address: "<household id>~<join key>", as in the TV's QR code. */
 export function parseConfig(segment) {
@@ -77,19 +83,22 @@ export function groups(items, order = []) {
     .map(({ group }) => group);
 }
 
-/** The add-on's description of itself: a catalog "All" and one per service, in the user's order. */
+/**
+ * The add-on's description of itself: a catalog "All" and one per service, in the user's order.
+ * Nuvio shows them as "All - Favorites" and "Netflix - Favorites".
+ */
 export function manifest(items, order = []) {
   return {
     id: "to.wim.tvfavorites",
-    version: "1.0.0",
+    version: "1.1.0",
     name: "TV Favorites",
     description: "Your TV Favorites, opened in the streaming service's own app.",
     resources: ["catalog", "meta", "stream"],
-    types: ["movie"],
+    types: [TYPE],
     idPrefixes: [ID_PREFIX],
     catalogs: [
-      { type: "movie", id: ALL, name: "TV Favorites" },
-      ...groups(items, order).map((g) => ({ type: "movie", id: SERVICE_PREFIX + g.serviceId, name: `TV Favorites · ${g.name}` })),
+      { type: TYPE, id: ALL, name: "All" },
+      ...groups(items, order).map((g) => ({ type: TYPE, id: SERVICE_PREFIX + g.serviceId, name: g.name })),
     ],
     behaviorHints: { configurable: false, configurationRequired: false },
   };
@@ -113,7 +122,7 @@ export function airedLine(item) {
 function preview(item) {
   return {
     id: ID_PREFIX + item.id,
-    type: "movie",
+    type: TYPE,
     name: item.title,
     // The services' own pictures are landscape (16:9).
     poster: item.imageUrl || undefined,

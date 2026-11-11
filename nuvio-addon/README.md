@@ -8,7 +8,7 @@ own TV screens and home screen rows stay as they are.
 1. Pair the TV and the phone (the add-on reads the shared list).
 2. Get your address: on the TV, **TV Favorites › Settings › Nuvio add-on** (scan the code with
    your phone to copy it), or on the phone, **Settings › Nuvio add-on** (share or copy).
-3. In Nuvio, add it under add-ons. Rows "TV Favorites" and "TV Favorites · <service>" appear.
+3. In Nuvio, add it under add-ons. Rows "All - Favorites" and one per service ("Netflix - Favorites") appear.
 4. Choose a show, then **TV Favorites**: TV Favorites on the TV opens it in the service's app.
    **Link** opens the shared link directly (for a TV without TV Favorites).
 
@@ -20,9 +20,9 @@ A Cloudflare Worker (`src/worker.js`) answering the Stremio add-on protocol:
 | Path | Answer |
 |---|---|
 | `/<household>~<key>/manifest.json` | The add-on, with a catalog "All" and one per service |
-| `/<household>~<key>/catalog/movie/<all or s-service>.json` | The favorites, in your order |
-| `/<household>~<key>/meta/movie/tvfav:<id>.json` | One favorite |
-| `/<household>~<key>/stream/movie/tvfav:<id>.json` | How to open it (`tvfavorites://open…`, the link) |
+| `/<household>~<key>/catalog/favorites/<all or s-service>.json` | The favorites, in your order |
+| `/<household>~<key>/meta/favorites/tvfav:<id>.json` | One favorite |
+| `/<household>~<key>/stream/favorites/tvfav:<id>.json` | How to open it (`tvfavorites://open…`, the link) |
 
 It signs in to Firebase anonymously once (kept in KV) and joins the household with the key, as a
 phone does (`firebase/firestore.rules`). It only reads. `src/addon.js` builds the answers,
