@@ -155,3 +155,11 @@ Favorites' own `tvfavorites://open` link (made `BROWSABLE`), as Nuvio opens one 
 TV Favorites knows each service's app and fallbacks. Deployed from GitHub Actions; the
 Cloudflare MCP server can't deploy Workers.
 
+
+## 2026-11-11: The Nuvio add-on's KV namespace is created by the deploy
+
+The first deploy failed because `wrangler.toml` named a KV namespace id that doesn't exist in the
+owner's Cloudflare account. The id is left out now, so `wrangler deploy` creates the namespace
+itself (Wrangler's automatic provisioning) and reuses the one bound to the Worker afterwards.
+The owner doesn't have to create anything in Cloudflare. It only holds the add-on's anonymous
+Firebase identity: if it were ever lost, the add-on signs in anew.

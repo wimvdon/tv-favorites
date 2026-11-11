@@ -45,4 +45,5 @@ on `main`. It needs two repository secrets (Settings › Secrets and variables �
 - `CLOUDFLARE_ACCOUNT_ID`: the account id (Cloudflare dashboard › Workers & Pages, right side).
 
 `FIREBASE_API_KEY` (already there for the app) is passed on to the Worker as a secret. The KV
-namespace `tv-favorites-nuvio-identity` is in `wrangler.toml`.
+namespace for the add-on's identity is created by the first deploy (Wrangler's automatic
+provisioning, so `wrangler.toml` has no id) and reused after that. Nothing to create by hand.
