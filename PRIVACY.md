@@ -36,7 +36,7 @@ phones.
   TVmaze id, to find when the latest episode aired. Both the phone and the TV ask.
 - **Google Firebase**, for the anonymous sign-in and the shared list.
 - **Picture hosts** of the streaming services, to show their pictures.
-- **The Nuvio add-on** (`tv-favorites-nuvio.wim-d57.workers.dev`, Cloudflare), only if you add
+- **The Nuvio add-on** (`tv-favorites-nuvio.wim-8af.workers.dev`, Cloudflare), only if you add
   its address in Nuvio. Nuvio then asks the add-on for your list; the add-on reads it from
   Firebase as a member of your household (it joins with the key in the address) and answers with
   the titles, descriptions, pictures and links. It keeps nothing but its own anonymous sign-in.
