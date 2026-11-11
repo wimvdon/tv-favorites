@@ -95,6 +95,9 @@ Rows are found again by the id they were written with (`<package>/<key>`), so lo
 lead to a second row; leftover duplicates are removed. Tiles are read without a selection (some
 TVs refuse one), updated in place and only rewritten when they changed. Only "All" is offered to
 the home screen by itself; Settings › Home screen rows offers every row, "All" included.
+With the app closed, a JobScheduler job (`HomeChannelsJob`) refreshes the rows and air dates
+about every hour. The job is persisted (`RECEIVE_BOOT_COMPLETED`), so it survives a restart of the
+TV; `RefreshSchedule` decides when an existing job is replaced (older, non-persisted ones are).
 
 ## Nuvio add-on
 An addition to the app's own TV screens and home screen rows, for people who browse in Nuvio.

@@ -25,9 +25,9 @@ import to.wim.tvfavorites.logic.ChannelPlan
 import to.wim.tvfavorites.logic.ExistingChannel
 import to.wim.tvfavorites.logic.PlannedChannel
 import to.wim.tvfavorites.logic.PlannedProgram
+import to.wim.tvfavorites.logic.RefreshSchedule
 import to.wim.tvfavorites.model.Favorite
 import to.wim.tvfavorites.ui.MainActivity
-import java.util.concurrent.TimeUnit
 
 /**
  * The rows on the Android TV home screen: "All" and one per service ([ChannelPlan]). Only the
@@ -267,18 +267,24 @@ class HomeChannels(private val context: Context) {
                 TvContract.PreviewPrograms.COLUMN_WEIGHT,
             )
 
-        /** Refreshes the rows about every hour, so favorites added on the phone show without opening the app. */
+        /**
+         * Refreshes the rows about every hour, so favorites added on the phone show without opening
+         * the app. Persisted, so the refresh keeps going after the TV restarts (needs
+         * `RECEIVE_BOOT_COMPLETED`).
+         */
         fun schedule(context: Context) {
             if (!context.app.isTv) return
             val scheduler = context.getSystemService(JobScheduler::class.java) ?: return
-            if (scheduler.getPendingJob(JOB_ID) != null) return
+            val pending = scheduler.getPendingJob(JOB_ID)?.let { RefreshSchedule.Pending(it.isPersisted, it.intervalMillis) }
+            if (!RefreshSchedule.needsSchedule(pending)) return
             val job =
                 JobInfo
                     .Builder(JOB_ID, ComponentName(context, HomeChannelsJob::class.java))
                     .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                    .setPeriodic(TimeUnit.HOURS.toMillis(1))
+                    .setPeriodic(RefreshSchedule.INTERVAL_MILLIS)
+                    .setPersisted(true)
                     .build()
-            scheduler.schedule(job)
+            runCatching { scheduler.schedule(job) }.onFailure { Log.w(TAG, "Background refresh could not be scheduled", it) }
         }
     }
 }

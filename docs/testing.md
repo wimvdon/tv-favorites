@@ -27,7 +27,7 @@ python3 -m unittest discover -s scripts/tests
   (`PageMetadataTest`), TVmaze parsing and regional matching, building a new favorite, landscape pictures (`LookupTest`),
   air date choice, refresh timing and time zones (`AiringTest`), service detection, finding the TV
   app and the order of links tried (`DeepLinksTest`), reordering, grouping and the group order (`OrderingTest`),
-  pairing codes (`PairingTest`), cookie and privacy walls (`ConsentGateTest`), home screen rows, finding them again and updating tiles in place (`ChannelPlanTest`), short and long presses of OK (`LongPressTest`), the Nuvio add-on address and its copy of the service names (`NuvioAddonTest`), the local list file and
+  pairing codes (`PairingTest`), cookie and privacy walls (`ConsentGateTest`), home screen rows, finding them again, the background refresh schedule (`RefreshScheduleTest`) and updating tiles in place (`ChannelPlanTest`), short and long presses of OK (`LongPressTest`), the Nuvio add-on address and its copy of the service names (`NuvioAddonTest`), the local list file and
   stored channel ids (`LocalLibraryStoreTest`), backup rules (`BackupRulesTest`).
 - Not covered by unit tests (needs a device): Firestore sync, the QR scanner, starting other apps,
   the TV home screen. Check those by hand (below).
@@ -46,7 +46,8 @@ description. In addition, check every now and then (always before a release):
 - [ ] **Rotation** (if auto-rotate is on): the screen still works and keeps its state (e.g. a half-edited favorite).
 - [ ] **Share** a show from VRT MAX, VTM GO, GoPlay and Netflix: title, picture and service are right.
 - [ ] **TV**: pair with the phone, open a favorite of each service, move one with ◀ ▶, check the
-      home screen row "All" and add a service row.
+      home screen row "All" and add a service row. Restart the TV, add a favorite on the phone
+      without opening the TV app: within about an hour it appears in the "All" row.
 - [ ] **Language**: Settings → System → Languages → App languages → this app → Nederlands.
       All text is translated.
 - [ ] **Large text**: Settings → Display → Font size at maximum. Nothing is cut off.
