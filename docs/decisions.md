@@ -177,3 +177,11 @@ stream that has only an `externalUrl`, however many streams there are. A playabl
 would go to Nuvio's own player, which can't open TV Favorites. So this needs a change in Nuvio
 (a feature request with a working implementation, nuviomedia/nuviotv issue 4425, was closed
 unreviewed because it had no labels).
+
+## 2026-11-11: Home screen rows keep updating after a restart
+
+The TV's hourly background refresh was lost when the TV restarted, so the home screen rows stayed
+as they were until TV Favorites was opened again. The job is now persisted, which needs the
+`RECEIVE_BOOT_COMPLETED` permission (owner's request, listed in PRIVACY.md). Chosen over a boot
+receiver of our own: Android keeps the job itself and no code runs at startup. Jobs from older
+versions are replaced the first time the new version runs.

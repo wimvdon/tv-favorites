@@ -30,6 +30,9 @@ class HomeChannelsJob : JobService() {
                 }
                 latest?.let { HomeChannels(this@HomeChannelsJob).sync(it.favorites, it.groupOrder) }
                 jobFinished(params, false)
+                // A job from an older version, lost on a restart, is replaced by the persisted one (after
+                // it finished: replacing a running job stops it).
+                HomeChannels.schedule(this@HomeChannelsJob)
             }
         return true
     }

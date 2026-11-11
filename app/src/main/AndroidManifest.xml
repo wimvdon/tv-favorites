@@ -8,6 +8,8 @@
     <!-- Android TV home screen rows: this app's own rows and tiles only (as apps whose rows show up declare it). -->
     <uses-permission android:name="com.android.providers.tv.permission.READ_EPG_DATA" />
     <uses-permission android:name="com.android.providers.tv.permission.WRITE_EPG_DATA" />
+    <!-- Keeps the TV's hourly refresh of those rows going after the TV restarts (a persisted job). -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <!-- One app for phones and Android TV: neither a touch screen nor the TV launcher is required. -->
     <uses-feature android:name="android.software.leanback" android:required="false" />

@@ -1,6 +1,6 @@
 # Privacy policy
 
-_Last updated: 2026-11-11 (Nuvio add-on)_
+_Last updated: 2026-11-11 (home screen rows after a restart)_
 
 TV Favorites keeps a list of shows and movies you saved, on your phone and the TV it is paired
 with. It has no account, no analytics, no advertising and no crash reporting.
@@ -24,6 +24,9 @@ with. It has no account, no analytics, no advertising and no crash reporting.
 - **TV home screen rows** (`READ_EPG_DATA`, `WRITE_EPG_DATA`, Android TV only): to write the app's
   own rows and tiles on the home screen. The app reads and changes only its own rows, never the TV
   guide or other apps' rows.
+- **Run at startup** (`RECEIVE_BOOT_COMPLETED`, used on Android TV only): so the hourly refresh of
+  those rows keeps going after the TV restarts. The app reads nothing at startup; it only lets
+  Android keep its scheduled refresh.
 
 Anyone who scans the TV's pairing code can see and change the list. Scan it only with your own
 phones.
