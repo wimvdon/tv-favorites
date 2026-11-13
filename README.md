@@ -186,7 +186,7 @@ Apply these once per repository (**Settings**):
      list after CI has run once).
    - Block force pushes.
 
-   ⚠️ Branch protection/rulesets on **private** repositories need **GitHub Pro** (or Team).
+   Branch protection/rulesets on **private** repositories need **GitHub Pro** (or Team).
    On a free account they work only for **public** repositories. Without it, CI still runs and
    shows ✅/❌ on every pull request, but GitHub won't *stop* you merging a red one, so only
    merge when the checks are green.

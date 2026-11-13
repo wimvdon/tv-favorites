@@ -247,15 +247,13 @@ jobs:
             --latest
           echo "### Published release [$TAG]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/tag/$TAG)" >> "$GITHUB_STEP_SUMMARY"
 
-  # ---------------------------------------------------------------------------
-  # OPTIONAL: upload to Google Play internal testing. Disabled until a Play
+  # Optional: upload to Google Play internal testing. Disabled until a Play
   # Console app and a service account exist. To enable (see README, "Google Play"):
   #   1. Create the app in the Play Console with the same applicationId and upload
   #      the first AAB by hand (Play requires that).
   #   2. Create a service account with "Release to testing tracks" permission and
   #      add its JSON key as the repository secret PLAY_SERVICE_ACCOUNT_JSON.
   #   3. Set PACKAGE_NAME below and uncomment this job.
-  # ---------------------------------------------------------------------------
   # play-internal:
   #   name: Upload to Google Play (internal testing)
   #   needs: release
