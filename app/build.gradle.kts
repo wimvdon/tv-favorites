@@ -6,20 +6,16 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
-// ---------------------------------------------------------------------------
-// App identity: the ONE place to change the package / application ID.
+// App identity: the only place to change the package / application ID.
 // (Also move the Kotlin sources in app/src/*/kotlin/ to the matching folder.)
-// ---------------------------------------------------------------------------
 val appId = "to.wim.tvfavorites"
 
-// ---------------------------------------------------------------------------
 // Versioning
 //  - Release builds: the release workflow passes -PappVersionName=X.Y.Z and
 //    -PappVersionCode=N (N = major*10000 + minor*100 + patch).
 //  - Every other build: version comes from `git describe --tags --long`, e.g.
 //    1.2.0-3-gabc1234, so a dev build never looks like a release.
 //    Falls back to 0.0.0-dev when there are no tags or no git.
-// ---------------------------------------------------------------------------
 val releaseVersionName: String? = providers.gradleProperty("appVersionName").orNull
 val releaseVersionCode: String? = providers.gradleProperty("appVersionCode").orNull
 
@@ -57,11 +53,9 @@ val appVersion: AppVersion = if (releaseVersionName != null || releaseVersionCod
     AppVersion(gitDescribeVersion(), 1)
 }
 
-// ---------------------------------------------------------------------------
 // Firebase (sync between phone and TV). Project `tv-favorites`; the app IDs are public.
 // The API key is not committed: pass -PfirebaseApiKey=... or set FIREBASE_API_KEY (CI uses the
 // repository secret of that name). Without it the app builds and works, but sync is off.
-// ---------------------------------------------------------------------------
 val firebaseProjectId = "tv-favorites"
 val firebaseReleaseAppId = "1:283263363436:android:2e6198b5a4933b6e266b49"
 val firebaseDebugAppId = "1:283263363436:android:f102f059eaf45295266b49"
@@ -72,10 +66,8 @@ val firebaseApiKey: String =
 
 fun quoted(value: String) = "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
 
-// ---------------------------------------------------------------------------
 // Release signing: only when keystore.properties exists. The release workflow
 // writes it at build time and deletes it afterwards. Never commit it.
-// ---------------------------------------------------------------------------
 val keystorePropertiesFile = rootProject.file("keystore.properties")
 val keystoreProperties = Properties().apply {
     if (keystorePropertiesFile.exists()) keystorePropertiesFile.inputStream().use { load(it) }
