@@ -38,7 +38,6 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -56,7 +55,6 @@ import to.wim.tvfavorites.app
 import to.wim.tvfavorites.data.Connection
 import to.wim.tvfavorites.launch.OpenFavoriteActivity
 import to.wim.tvfavorites.launch.Launcher
-import to.wim.tvfavorites.logic.Airing
 import to.wim.tvfavorites.logic.ChannelPlan
 import to.wim.tvfavorites.logic.LongPressDetector
 import to.wim.tvfavorites.logic.Press
@@ -204,8 +202,6 @@ private fun TvFavoriteCard(
     onClick: () -> Unit,
     onLongClick: () -> Unit,
 ) {
-    val resources = LocalResources.current
-    val aired = Airing.dateAndEpisode(item).takeIf { it.isNotEmpty() }?.let { resources.getString(R.string.last_aired, it) }
     // OK on the remote is handled here, not by the card: a long press opens the actions once,
     // and letting go of OK afterwards neither opens the favorite nor presses a button in them.
     val press = remember { LongPressDetector(ViewConfiguration.getLongPressTimeout().toLong()) }
@@ -247,7 +243,7 @@ private fun TvFavoriteCard(
         // Fixed lines, so the row keeps one height while it scrolls (DESIGN.md).
         Text(item.title, style = MaterialTheme.typography.titleSmall, maxLines = 2, minLines = 2, overflow = TextOverflow.Ellipsis)
         Text(
-            if (moving) stringResource(R.string.tv_moving) else aired.orEmpty(),
+            if (moving) stringResource(R.string.tv_moving) else "",
             style = MaterialTheme.typography.bodySmall,
             color = if (moving) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 1,

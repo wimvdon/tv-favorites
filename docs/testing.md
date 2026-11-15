@@ -24,8 +24,7 @@ python3 -m unittest discover -s scripts/tests
 - Every logic change gets a test. Put logic in plain Kotlin classes (no Android types) and test
   them with JUnit in `app/src/test/kotlin/`, mirroring the package.
 - What is covered: shared text and link cleaning (`SharedTextTest`), page tags and title cleaning
-  (`PageMetadataTest`), TVmaze parsing and regional matching, building a new favorite, landscape pictures (`LookupTest`),
-  air date choice, refresh timing and time zones (`AiringTest`), service detection, finding the TV
+  (`PageMetadataTest`), building a new favorite and landscape pictures (`DraftBuilderTest`), service detection, finding the TV
   app and the order of links tried (`DeepLinksTest`), reordering, grouping and the group order (`OrderingTest`),
   pairing codes (`PairingTest`), cookie and privacy walls (`ConsentGateTest`), home screen rows, finding them again, the background refresh schedule (`RefreshScheduleTest`) and updating tiles in place (`ChannelPlanTest`), short and long presses of OK (`LongPressTest`), the Nuvio add-on address and its copy of the service names (`NuvioAddonTest`), the local list file and
   stored channel ids (`LocalLibraryStoreTest`), backup rules (`BackupRulesTest`).

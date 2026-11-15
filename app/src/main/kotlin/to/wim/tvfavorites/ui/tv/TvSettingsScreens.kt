@@ -175,8 +175,7 @@ fun TvSettingsScreen(
             }
             item {
                 Text(
-                    stringResource(R.string.footer, stringResource(R.string.app_name), version) + "\n" +
-                        stringResource(R.string.tvmaze_attribution),
+                    stringResource(R.string.footer, stringResource(R.string.app_name), version),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(16.dp),

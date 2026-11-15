@@ -23,11 +23,6 @@ class HomeChannelsJob : JobService() {
                 var latest: Library? = null
                 // Firestore answers from its copy on the TV first, then with the server's list.
                 withTimeoutOrNull(20_000) { app.library.library.filterNotNull().collect { latest = it } }
-                if (latest != null) {
-                    // The TV keeps its air dates up to date itself, without the phone.
-                    app.library.refreshAiring(app.details)
-                    withTimeoutOrNull(10_000) { app.library.library.filterNotNull().collect { latest = it } }
-                }
                 latest?.let { HomeChannels(this@HomeChannelsJob).sync(it.favorites, it.groupOrder) }
                 jobFinished(params, false)
                 // A job from an older version, lost on a restart, is replaced by the persisted one (after

@@ -54,8 +54,6 @@ export function favoriteFromDocument(doc) {
     imageUrl: f.imageUrl || f.posterUrl || "",
     position: Number(f.position ?? 0),
     addedAt: Number(f.addedAt ?? 0),
-    lastAired: f.lastAired ?? "",
-    lastEpisode: f.lastEpisode ?? "",
   };
 }
 
@@ -90,7 +88,7 @@ export function groups(items, order = []) {
 export function manifest(items, order = []) {
   return {
     id: "to.wim.tvfavorites",
-    version: "1.1.0",
+    version: "1.1.1",
     name: "TV Favorites",
     description: "Your TV Favorites, opened in the streaming service's own app.",
     resources: ["catalog", "meta", "stream"],
@@ -113,12 +111,6 @@ export function catalog(catalogId, items, order = []) {
   return { metas: (group?.items ?? []).map(preview) };
 }
 
-/** "3 Nov 2026 · S2E5" style line, in English (the add-on doesn't know the TV's language). */
-export function airedLine(item) {
-  const date = /^\d{4}-\d{2}-\d{2}/.test(item.lastAired) ? item.lastAired.slice(0, 10) : "";
-  return [date, item.lastEpisode].filter(Boolean).join(" · ");
-}
-
 function preview(item) {
   return {
     id: ID_PREFIX + item.id,
@@ -129,7 +121,6 @@ function preview(item) {
     posterShape: "landscape",
     background: item.imageUrl || undefined,
     description: item.description || undefined,
-    releaseInfo: airedLine(item) || undefined,
   };
 }
 

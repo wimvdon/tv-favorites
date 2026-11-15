@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { airedLine, catalog, favoriteFromDocument, manifest, meta, nameOf, openLink, parseConfig, streams } from "../src/addon.js";
+import { catalog, favoriteFromDocument, manifest, meta, nameOf, openLink, parseConfig, streams } from "../src/addon.js";
 
 const doc = (id, fields) => ({
   name: `projects/tv-favorites/databases/(default)/documents/households/h/favorites/${id}`,
@@ -23,11 +23,12 @@ test("the address carries the household and its key", () => {
   assert.equal(parseConfig(undefined), null);
 });
 
+// Favorite 2 still has the air date fields older app versions wrote: they are ignored.
 test("favorites are read as the app writes them, without broken ones", () => {
   assert.equal(items.length, 2);
   assert.deepEqual(items[1], {
     id: "2", title: "Een Echte Job", url: "https://www.vtmgo.be/vtmgo/een-echte-job~3438", serviceId: "vtmgo",
-    description: "", imageUrl: "https://i/2.jpg", position: 0, addedAt: 0, lastAired: "2026-11-03T19:30:00Z", lastEpisode: "S6E4",
+    description: "", imageUrl: "https://i/2.jpg", position: 0, addedAt: 0,
   });
 });
 
@@ -47,7 +48,7 @@ test("catalogs list landscape tiles in the user's order", () => {
   assert.equal(all.metas[0].posterShape, "landscape");
   assert.equal(all.metas[0].type, "favorites");
   assert.equal(all.metas[0].poster, "https://i/2.jpg");
-  assert.equal(all.metas[0].releaseInfo, "2026-11-03 · S6E4");
+  assert.equal(all.metas[0].releaseInfo, undefined);
   assert.deepEqual(catalog("s-netflix", items).metas.map((m) => m.name), ["Dark"]);
   assert.deepEqual(catalog("s-gone", items).metas, []);
   assert.equal(catalog("other", items), null);
@@ -74,9 +75,7 @@ test("the open link is the one TV Favorites' home screen tiles use", () => {
   assert.equal(link.searchParams.get("id"), "2");
 });
 
-test("names and aired lines", () => {
+test("service names", () => {
   assert.equal(nameOf("vrtmax"), "VRT MAX");
   assert.equal(nameOf("example.org"), "example.org");
-  assert.equal(airedLine({ lastAired: "", lastEpisode: "" }), "");
-  assert.equal(airedLine({ lastAired: "2026-01-02", lastEpisode: "" }), "2026-01-02");
 });

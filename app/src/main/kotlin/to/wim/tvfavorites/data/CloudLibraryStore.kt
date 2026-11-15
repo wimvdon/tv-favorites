@@ -151,10 +151,6 @@ class CloudLibraryStore(
                 imageUrl = doc.getString("imageUrl").orEmpty().ifEmpty { doc.getString("posterUrl").orEmpty() },
                 position = doc.getLong("position") ?: 0,
                 addedAt = doc.getLong("addedAt") ?: 0,
-                tvMazeId = doc.getLong("tvMazeId") ?: 0,
-                lastAired = doc.getString("lastAired").orEmpty(),
-                lastEpisode = doc.getString("lastEpisode").orEmpty(),
-                checkedAt = doc.getLong("checkedAt") ?: 0,
             )
         }
 
@@ -167,10 +163,6 @@ class CloudLibraryStore(
                 "imageUrl" to f.imageUrl,
                 "position" to f.position,
                 "addedAt" to f.addedAt,
-                "tvMazeId" to f.tvMazeId,
-                "lastAired" to f.lastAired,
-                "lastEpisode" to f.lastEpisode,
-                "checkedAt" to f.checkedAt,
             )
 
         private fun toOverrides(doc: DocumentSnapshot?): Map<String, ServiceOverride> {

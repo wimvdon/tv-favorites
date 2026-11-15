@@ -17,14 +17,6 @@ data class Favorite(
     val imageUrl: String = "",
     val position: Long = 0,
     val addedAt: Long = 0,
-    /** The matching TVmaze show, or 0 when none is known (yet). */
-    val tvMazeId: Long = 0,
-    /** When the latest episode aired (a movie: its release), as yyyy-MM-dd, or empty. */
-    val lastAired: String = "",
-    /** That episode as "S2E5", or empty. */
-    val lastEpisode: String = "",
-    /** When [lastAired] was last looked up (milliseconds), so it is refreshed once a day at most. */
-    val checkedAt: Long = 0,
 )
 
 /** Hand-made changes to how a service is opened on the TV (Settings › Streaming apps). */

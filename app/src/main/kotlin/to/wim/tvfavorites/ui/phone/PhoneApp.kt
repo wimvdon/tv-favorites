@@ -63,10 +63,6 @@ fun PhoneApp(
             push(Route.Add(shared))
         }
     }
-    // The last aired episode of shows matched on TMDB, at most once a day each.
-    LaunchedEffect(Unit) {
-        app.library.library.collect { lib -> if (lib != null) app.library.refreshAiring(app.details) }
-    }
 
     BackHandler(enabled = stack.size > 1) {
         val top = stack.last()

@@ -1,7 +1,7 @@
 package to.wim.tvfavorites.logic
 
 /**
- * The TV's background refresh of the home screen rows and air dates: about every hour, kept
+ * The TV's background refresh of the home screen rows: about every hour, kept
  * across restarts of the TV.
  */
 object RefreshSchedule {

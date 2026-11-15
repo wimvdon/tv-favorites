@@ -41,7 +41,6 @@
     <string name="tv_row_moving">▲ ▼ para mover, OK al terminar</string>
     <string name="field_service">Servicio de streaming</string>
     <string name="refresh_failed">No se pudo buscar este enlace</string>
-    <string name="last_aired">Última emisión %1$s</string>
     <string name="delete_title">¿Eliminar favorito?</string>
     <string name="delete_body">%1$s se eliminará de tu teléfono y tu TV.</string>
     <string name="launch_opened_app_only">Se abrió %1$s. No se pudo abrir el programa en sí.</string>
@@ -79,7 +78,6 @@
     <string name="theme_dark">Oscuro</string>
     <string name="dynamic_color">Color dinámico</string>
     <string name="dynamic_color_summary">Usar los colores del fondo de pantalla</string>
-    <string name="tvmaze_attribution">Fechas de emisión de TVmaze</string>
     <string name="tv_row_all">Todos</string>
     <string name="tv_connect_phone">Conectar teléfono</string>
     <string name="tv_connect_phone_summary">Mostrar el código para escanear con TV Favorites en tu teléfono</string>

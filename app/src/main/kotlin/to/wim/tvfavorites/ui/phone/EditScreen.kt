@@ -57,7 +57,6 @@ import to.wim.tvfavorites.R
 import to.wim.tvfavorites.app
 import to.wim.tvfavorites.launch.OpenFavoriteActivity
 import to.wim.tvfavorites.launch.Launcher
-import to.wim.tvfavorites.logic.Airing
 import to.wim.tvfavorites.logic.Draft
 import to.wim.tvfavorites.logic.ServiceCatalog
 import to.wim.tvfavorites.logic.SharedLink
@@ -112,7 +111,7 @@ fun EditScreen(
     }
     val draft =
         item?.let {
-            Draft(it.url, it.serviceId, it.title, it.description, it.imageUrl, it.tvMazeId, it.lastAired, it.lastEpisode)
+            Draft(it.url, it.serviceId, it.title, it.description, it.imageUrl)
         }
     DetailsForm(
         title = stringResource(R.string.edit_title),
@@ -140,9 +139,6 @@ fun EditScreen(
                         serviceId = saved.serviceId,
                         description = saved.description.trim(),
                         imageUrl = saved.imageUrl.trim(),
-                        tvMazeId = saved.tvMazeId,
-                        lastAired = saved.lastAired,
-                        lastEpisode = saved.lastEpisode,
                     ),
                 )
             }
@@ -234,9 +230,6 @@ private fun DetailsForm(
                                 .background(MaterialTheme.colorScheme.surfaceContainerHighest),
                     )
                 }
-                Airing.dateAndEpisode(toFavorite(current)).takeIf { it.isNotEmpty() }?.let {
-                    Text(stringResource(R.string.last_aired, it), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
                 OutlinedTextField(
                     value = current.title,
                     onValueChange = { form = current.copy(title = it) },
@@ -286,9 +279,6 @@ private fun DetailsForm(
                                             title = fresh.title.ifBlank { current.title },
                                             description = fresh.description.ifBlank { current.description },
                                             imageUrl = fresh.imageUrl.ifBlank { current.imageUrl },
-                                            tvMazeId = fresh.tvMazeId,
-                                            lastAired = fresh.lastAired,
-                                            lastEpisode = fresh.lastEpisode,
                                         )
                                 } else {
                                     Toast.makeText(context, R.string.refresh_failed, Toast.LENGTH_SHORT).show()
@@ -320,8 +310,6 @@ private fun DetailsForm(
         )
     }
 }
-
-private fun toFavorite(d: Draft) = to.wim.tvfavorites.model.Favorite(id = "", title = d.title, url = d.url, serviceId = d.serviceId, lastAired = d.lastAired, lastEpisode = d.lastEpisode)
 
 @Composable
 private fun ServiceChoiceDialog(
@@ -359,6 +347,6 @@ private fun ServiceChoiceDialog(
 /** Keeps the form across rotation. */
 private val DraftSaver =
     androidx.compose.runtime.saveable.Saver<Draft?, List<String>>(
-        save = { d -> d?.let { listOf(it.url, it.serviceId, it.title, it.description, it.imageUrl, it.tvMazeId.toString(), it.lastAired, it.lastEpisode) } ?: emptyList() },
-        restore = { l -> if (l.size < 8) null else Draft(l[0], l[1], l[2], l[3], l[4], l[5].toLongOrNull() ?: 0, l[6], l[7]) },
+        save = { d -> d?.let { listOf(it.url, it.serviceId, it.title, it.description, it.imageUrl) } ?: emptyList() },
+        restore = { l -> if (l.size < 5) null else Draft(l[0], l[1], l[2], l[3], l[4]) },
     )

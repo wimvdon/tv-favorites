@@ -41,7 +41,6 @@
     <string name="tv_row_moving">▲ ▼ om te verplaatsen, OK als je klaar bent</string>
     <string name="field_service">Streamingdienst</string>
     <string name="refresh_failed">Kon deze link niet opzoeken</string>
-    <string name="last_aired">Laatst uitgezonden %1$s</string>
     <string name="delete_title">Favoriet verwijderen?</string>
     <string name="delete_body">%1$s wordt van je telefoon en tv verwijderd.</string>
     <string name="launch_opened_app_only">%1$s geopend. De serie zelf kon niet geopend worden.</string>
@@ -79,7 +78,6 @@
     <string name="theme_dark">Donker</string>
     <string name="dynamic_color">Dynamische kleuren</string>
     <string name="dynamic_color_summary">Kleuren van je achtergrond gebruiken</string>
-    <string name="tvmaze_attribution">Uitzenddata van TVmaze</string>
     <string name="tv_row_all">Alle</string>
     <string name="tv_connect_phone">Telefoon verbinden</string>
     <string name="tv_connect_phone_summary">Toon de code om te scannen met TV Favorites op je telefoon</string>

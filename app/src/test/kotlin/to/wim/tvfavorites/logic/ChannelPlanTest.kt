@@ -23,10 +23,9 @@ class ChannelPlanTest {
     }
 
     @Test
-    fun `the aired line comes before the description`() {
-        val program = ChannelPlan.program(items[0], "Last aired 3 Nov")
-        assertEquals("Last aired 3 Nov\nTime travel", program.description)
+    fun `the tile shows the favorite's own description`() {
         assertEquals("Time travel", ChannelPlan.program(items[0]).description)
+        assertEquals("", ChannelPlan.program(items[1]).description)
     }
 
     @Test

@@ -4,13 +4,12 @@
 TV Favorites saves shows and movies from any streaming service and opens them on an Android TV.
 
 - **Phone** (management): share a link from a streaming app (Share › TV Favorites) or paste one;
-  the app reads the page's title, description and picture, adds the last aired episode from
-  TVmaze, and saves it. The list can be reordered (drag handles), grouped by service, edited and
+  the app reads the page's title, description and picture, and saves it. The list can be reordered (drag handles), grouped by service, edited and
   deleted. Settings: pairing with the TV (scan its QR code), group by service and the service
   order (also the TV's row order), per-service app settings, appearance.
 - **TV** (works on its own): one row "All" and one per service; OK opens the favorite in the
   service's app, a long press opens Open / Move / Edit / Delete. The app keeps the Android TV home
-  screen rows ("All", and per service when the user adds them) and the air dates up to date
+  screen rows ("All", and per service when the user adds them) up to date
   itself, also while closed (a job about every hour). It shows the QR code a phone scans.
 - One APK for both: `TvFavoritesApp.isTv` picks the TV or the phone screens.
 
@@ -22,8 +21,7 @@ app/src/main/kotlin/to/wim/tvfavorites/
   logic/                Plain Kotlin, unit tested:
     SharedText            The link and a title hint in shared text; tracking parameters removed.
     PageMetadata          Open Graph / Twitter / <title> parsing; Titles cleans site names.
-    Lookup                TVmaze search, regional match and last aired episode; DraftBuilder.
-    Airing                When to refresh air dates; date and time in the device's time zone.
+    Draft                 DraftBuilder: a new favorite from the shared link and its page.
     Services              ServiceCatalog: known services, their hosts and TV apps.
     DeepLinks             Which TV app opens a service and in which order links are tried.
     Ordering              Sorting, moving (whole list or within a service), grouping.
@@ -34,7 +32,7 @@ app/src/main/kotlin/to/wim/tvfavorites/
     LibraryStore          LocalLibraryStore (JSON file) and the interface.
     CloudLibraryStore     Firestore: households/<id>/{members,favorites,settings}.
     LibraryRepository     The list for the screens: local until paired, then the cloud; pairing.
-    DetailsFetcher        Reads shared pages (OkHttp) and TVmaze.
+    DetailsFetcher        Reads shared pages (OkHttp).
     SettingsStore         DataStore: backed_up_settings and device_state.
   launch/               Launcher (intents, following DeepLinks), OpenFavoriteActivity (home screen tiles).
   tv/                   HomeChannels (TvContract rows), HomeChannelsJob, InitializeProgramsReceiver.
@@ -95,7 +93,7 @@ Rows are found again by the id they were written with (`<package>/<key>`), so lo
 lead to a second row; leftover duplicates are removed. Tiles are read without a selection (some
 TVs refuse one), updated in place and only rewritten when they changed. Only "All" is offered to
 the home screen by itself; Settings › Home screen rows offers every row, "All" included.
-With the app closed, a JobScheduler job (`HomeChannelsJob`) refreshes the rows and air dates
+With the app closed, a JobScheduler job (`HomeChannelsJob`) refreshes the rows
 about every hour. The job is persisted (`RECEIVE_BOOT_COMPLETED`), so it survives a restart of the
 TV; `RefreshSchedule` decides when an existing job is replaced (older, non-persisted ones are).
 
@@ -119,15 +117,6 @@ An addition to the app's own TV screens and home screen rows, for people who bro
   The service names are copied in `nuvio-addon/src/services.json`; `NuvioAddonTest` checks them.
 - **Deploy:** `.github/workflows/nuvio-addon.yml` on changes in `nuvio-addon/` (needs the
   `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets; passes `FIREBASE_API_KEY` on).
-
-## Air dates
-`DetailsFetcher` searches TVmaze by the show's title (`/search/shows`); `TvMaze.bestMatch` takes an
-exact name, for regional services one from that country or language
-(`StreamingService.countries`/`languages`), and gives up rather than guess. The show's previous
-episode (`/shows/<id>?embed=previousepisode`) gives the exact moment (`airstamp`), stored as ISO 8601
-and shown in the device's time zone. `Airing.isDue`: daily for found shows, weekly for ones not
-found yet (which also fills in older favorites). Refreshed by the phone and by the TV (on start and
-in the hourly job). Movies get no date: TVmaze only knows series.
 
 ## Conventions
 - **Single `app` module.** Logic in plain Kotlin under `logic/`, tested on the JVM.
