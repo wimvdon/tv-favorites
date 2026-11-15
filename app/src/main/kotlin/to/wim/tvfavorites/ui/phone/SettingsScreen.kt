@@ -3,7 +3,6 @@ package to.wim.tvfavorites.ui.phone
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
-import androidx.core.net.toUri
 import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -196,11 +195,7 @@ fun SettingsScreen(
             }
         }
         item {
-            SettingsFooter(stringResource(R.string.footer, stringResource(R.string.app_name), version)) {
-                TextButton(onClick = {
-                    runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, "https://www.tvmaze.com".toUri())) }
-                }) { Text(stringResource(R.string.tvmaze_attribution)) }
-            }
+            SettingsFooter(stringResource(R.string.footer, stringResource(R.string.app_name), version))
         }
     }
 

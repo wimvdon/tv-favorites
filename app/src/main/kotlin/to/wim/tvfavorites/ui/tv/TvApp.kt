@@ -24,8 +24,8 @@ import to.wim.tvfavorites.data.ThemeMode
 enum class TvRoute { Home, Pair, Settings, Services, Rows, RowOrder, Nuvio }
 
 /**
- * The TV app: works on its own once set up. It keeps the shared list, the home screen rows and
- * the air dates up to date itself; the phone is only needed to add favorites.
+ * The TV app: works on its own once set up. It keeps the shared list and the home screen rows
+ * up to date itself; the phone is only needed to add favorites.
  */
 @Composable
 fun TvApp() {
@@ -41,11 +41,10 @@ fun TvApp() {
             while (runCatching { app.library.ensureHousehold() }.getOrNull() == null) delay(30_000)
         }
     }
-    // Home screen rows and air dates follow every change of the list.
+    // Home screen rows follow every change of the list.
     LaunchedEffect(library) {
         val lib = library ?: return@LaunchedEffect
         HomeChannels(context).sync(lib.favorites, lib.groupOrder)
-        app.library.refreshAiring(app.details)
     }
 
     BackHandler(enabled = route != TvRoute.Home) {

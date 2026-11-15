@@ -59,7 +59,6 @@ import kotlinx.coroutines.launch
 import to.wim.tvfavorites.R
 import to.wim.tvfavorites.app
 import to.wim.tvfavorites.data.Settings
-import to.wim.tvfavorites.logic.Airing
 import to.wim.tvfavorites.logic.Ordering
 import to.wim.tvfavorites.logic.ServiceCatalog
 import to.wim.tvfavorites.logic.SharedLink
@@ -167,10 +166,8 @@ private fun FavoriteRows(
     onEdit: (Favorite) -> Unit,
     onMove: (Int, Int) -> Unit,
 ) {
-    val resources = LocalResources.current
     ReorderableColumn(items = items, key = { it.id }, onMove = onMove) { item ->
-        val aired = Airing.dateAndEpisode(item).takeIf { it.isNotEmpty() }?.let { resources.getString(R.string.last_aired, it) }
-        val supporting = listOfNotNull(ServiceCatalog.nameOf(item.serviceId).takeIf { showService }, aired).joinToString(" · ")
+        val supporting = if (showService) ServiceCatalog.nameOf(item.serviceId) else ""
         ListItem(
             headlineContent = { Text(item.title, maxLines = 2, overflow = TextOverflow.Ellipsis) },
             supportingContent = supporting.takeIf { it.isNotEmpty() }?.let { { Text(it, maxLines = 1, overflow = TextOverflow.Ellipsis) } },

@@ -20,7 +20,6 @@ import kotlinx.coroutines.withContext
 import to.wim.tvfavorites.R
 import to.wim.tvfavorites.app
 import to.wim.tvfavorites.launch.OpenFavoriteActivity
-import to.wim.tvfavorites.logic.Airing
 import to.wim.tvfavorites.logic.ChannelPlan
 import to.wim.tvfavorites.logic.ExistingChannel
 import to.wim.tvfavorites.logic.PlannedChannel
@@ -65,11 +64,7 @@ class HomeChannels(private val context: Context) {
         items: List<Favorite>,
         groupOrder: List<String>,
     ) {
-        // Dates and times in the TV's own language and time zone.
-        val plan =
-            ChannelPlan.plan(items, context.getString(R.string.tv_row_all), aired = { item ->
-                Airing.dateAndEpisode(item).takeIf { it.isNotEmpty() }?.let { context.getString(R.string.last_aired, it) }.orEmpty()
-            }, groupOrder = groupOrder)
+        val plan = ChannelPlan.plan(items, context.getString(R.string.tv_row_all), groupOrder = groupOrder)
         val match = ChannelPlan.matchChannels(packageName, context.app.settings.currentDevice().channels, existingChannels())
         match.extra.forEach { id -> runCatching { resolver.delete(TvContract.buildChannelUri(id), null, null) } }
         val known = match.found.toMutableMap()

@@ -185,3 +185,13 @@ as they were until TV Favorites was opened again. The job is now persisted, whic
 `RECEIVE_BOOT_COMPLETED` permission (owner's request, listed in PRIVACY.md). Chosen over a boot
 receiver of our own: Android keeps the job itself and no code runs at startup. Jobs from older
 versions are replaced the first time the new version runs.
+
+## 2026-11-15: No more air dates, TVmaze removed
+
+The owner asked to remove the "Last aired" date everywhere (phone list, edit screen, TV cards,
+home screen tiles, Nuvio add-on), and with it everything that existed only for it: the TVmaze
+lookups, the daily refresh, the stored fields (`tvMazeId`, `lastAired`, `lastEpisode`,
+`checkedAt`) and the services' countries and languages used to match shows. The app no longer
+contacts TVmaze. A side effect: a show whose page has no description no longer gets TVmaze's
+summary instead. Old favorites keep the fields in the local file and in Firestore until they are
+next saved; the app and the add-on ignore them, so no migration is needed.

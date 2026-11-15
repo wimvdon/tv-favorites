@@ -17,9 +17,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withTimeoutOrNull
-import to.wim.tvfavorites.logic.Airing
 import to.wim.tvfavorites.logic.Draft
 import to.wim.tvfavorites.logic.Household
 import to.wim.tvfavorites.logic.Ordering
@@ -116,10 +114,6 @@ class LibraryRepository(
                 imageUrl = draft.imageUrl.trim(),
                 position = Ordering.positionForNew(current()),
                 addedAt = System.currentTimeMillis(),
-                tvMazeId = draft.tvMazeId,
-                lastAired = draft.lastAired,
-                lastEpisode = draft.lastEpisode,
-                checkedAt = if (draft.tvMazeId > 0) System.currentTimeMillis() else 0,
             )
         launchChange { add(listOf(item)) }
         return item
@@ -141,35 +135,6 @@ class LibraryRepository(
         val changed = Ordering.moveWithin(current(), serviceId, from, to)
         if (changed.isNotEmpty()) launchChange { updatePositions(changed) }
     }
-
-    /**
-     * Looks up the last aired episode on TVmaze ([Airing.isDue]: daily for found shows, weekly
-     * for ones not found yet), on the phone and on the TV. The home screen rows follow the change.
-     */
-    suspend fun refreshAiring(fetcher: DetailsFetcher, now: Long = System.currentTimeMillis()) {
-        if (!refreshing.tryLock()) return
-        try {
-            for (item in current().filter { Airing.isDue(it, now) }.take(30)) {
-                val showId = if (item.tvMazeId > 0) item.tvMazeId else fetcher.show(item.title, item.serviceId)?.id ?: 0
-                val airing = if (showId > 0) fetcher.airing(showId) else null
-                val latest = current().firstOrNull { it.id == item.id } ?: continue
-                // Also stamped when nothing was found, so a title is tried again later, not every minute.
-                val next =
-                    if (airing == null) {
-                        latest.copy(tvMazeId = showId, checkedAt = now)
-                    } else {
-                        latest.copy(tvMazeId = showId, lastAired = airing.date, lastEpisode = airing.episode, checkedAt = now)
-                    }
-                store.value.update(next)
-            }
-        } catch (e: Exception) {
-            Log.w(TAG, "Air dates could not be refreshed", e)
-        } finally {
-            refreshing.unlock()
-        }
-    }
-
-    private val refreshing = Mutex()
 
     fun setOverride(serviceId: String, value: ServiceOverride) = launchChange { setOverride(serviceId, value) }
 

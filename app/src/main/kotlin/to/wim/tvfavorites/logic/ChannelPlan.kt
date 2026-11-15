@@ -111,22 +111,20 @@ object ChannelPlan {
     fun plan(
         items: List<Favorite>,
         allName: String,
-        aired: (Favorite) -> String = { "" },
         groupOrder: List<String> = emptyList(),
         limit: Int = 50,
     ): List<PlannedChannel> {
         val sorted = Ordering.sorted(items)
-        val all = PlannedChannel(ALL, allName, sorted.take(limit).map { program(it, aired(it)) })
-        val perService = Ordering.groups(sorted, order = groupOrder).map { g -> PlannedChannel(g.serviceId, g.name, g.items.take(limit).map { program(it, aired(it)) }) }
+        val all = PlannedChannel(ALL, allName, sorted.take(limit).map { program(it) })
+        val perService = Ordering.groups(sorted, order = groupOrder).map { g -> PlannedChannel(g.serviceId, g.name, g.items.take(limit).map { program(it) }) }
         return listOf(all) + perService
     }
 
-    /** [airedLine] ("Last aired 3 Nov 2026 · S2E5") goes first, so it shows even when the description is cut off. */
-    fun program(item: Favorite, airedLine: String = ""): PlannedProgram =
+    fun program(item: Favorite): PlannedProgram =
         PlannedProgram(
             favoriteId = item.id,
             title = item.title,
-            description = listOf(airedLine, item.description).filter { it.isNotBlank() }.joinToString("\n"),
+            description = item.description,
             imageUrl = item.imageUrl,
             intentUri = openUri(item),
         )

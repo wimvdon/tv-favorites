@@ -41,7 +41,6 @@
     <string name="tv_row_moving">▲ ▼ to move, OK when done</string>
     <string name="field_service">Streaming service</string>
     <string name="refresh_failed">Couldn’t look up this link</string>
-    <string name="last_aired">Last aired %1$s</string>
     <string name="delete_title">Delete favorite?</string>
     <string name="delete_body">%1$s is removed from your phone and TV.</string>
     <string name="launch_opened_app_only">Opened %1$s. The show itself couldn’t be opened.</string>
@@ -80,7 +79,6 @@
     <string name="dynamic_color">Dynamic color</string>
     <string name="dynamic_color_summary">Use colors from your wallpaper</string>
     <string name="footer" translatable="false">%1$s %2$s</string>
-    <string name="tvmaze_attribution">Air dates from TVmaze</string>
     <string name="tv_row_all">All</string>
     <string name="tv_connect_phone">Connect phone</string>
     <string name="tv_connect_phone_summary">Show the code to scan with TV Favorites on your phone</string>
