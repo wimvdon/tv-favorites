@@ -2,6 +2,12 @@
 
 Newest first. Add an entry for every notable choice: what was decided, why, and what was rejected.
 
+## 2026-11-22: The TV home row logo has no plate
+
+The owner wants the plate only where the system shows the icon as a tile (the launcher and the
+TV banner). The logo next to the app's row on the TV home screen is now the bare heart (the
+launcher foreground, drawn so the heart fills the logo) instead of the launcher icon on its plate.
+
 ## 2026-11-22: The icon sits on a soft pink plate, with a pink play button
 
 The owner wanted the app icons out of their white frame, across all of their apps. Launchers cut the
