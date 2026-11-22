@@ -2,6 +2,18 @@
 
 Newest first. Add an entry for every notable choice: what was decided, why, and what was rejected.
 
+## 2026-11-22: Icons: same padding in every app, white background, white details; colour scheme follows the icon
+
+All apps now share one icon style (see `DESIGN.md`, "Icons"). For TV Favorites: the launcher
+foreground and the themed layer sit in a group (scale 0.834 around 54,56, moved up 2) so the heart's
+furthest point is 26.3 units from the middle of the canvas; the adaptive-icon background is plain
+white instead of the pink plate; the play button is white instead of the plate's pink. The TV banner
+is the same icon at twice the size on plain white (the plate is gone, the heart keeps its
+proportion). The TV home row logo stays the bare heart, drawn with new bounds because the heart is
+now smaller in the foreground. The colour scheme already followed the icon (seed `#E83A7A`, the
+gradient's middle stop), so it is unchanged. Rejected: keeping the pink plate (the owner wants no
+coloured backgrounds).
+
 ## 2026-11-22: The TV home row logo has no plate
 
 The owner wants the plate only where the system shows the icon as a tile (the launcher and the
