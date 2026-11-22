@@ -19,9 +19,12 @@ rules too: copy this file into it and fill in "This app".
 - A detail inside the shape (a check, a play button) is solid in the plate's colour, not a
   hole and not white, so the icon also reads without its plate.
 - A themed (monochrome) layer: the same shape, with the detail cut out or half transparent.
-- Every other icon of the app follows the same shape: the status bar (notification) icon, Quick
-  Settings tiles, home-screen shortcuts (on the same plate), TV banners, in-app logos, and web
-  favicons, PWA and extension icons.
+- Every other icon of the app follows the same shape. Only icons the system shows as a tile
+  carry the plate: the launcher icon, home-screen shortcuts, TV banners and the icons of an
+  installed web app on a phone (maskable and Apple touch icons). Everywhere else the shape
+  stands on its own, without a plate: in-app logos, the TV home row logo, the status bar
+  (notification) icon, Quick Settings tiles, web favicons, desktop web app icons and extension
+  icons.
 
 | App | Shape | Gradient | Plate |
 | --- | --- | --- | --- |
@@ -241,7 +244,8 @@ app apart from their package (and `R` import) lines. Copy a change to the other 
 - Icon: a heart with a play button, gradient `#FF7AA8` → `#E83A7A` → `#A82BC4`, on a soft pink
   plate (`#FDEBF2` → `#F6D5E6`) instead of white; the play button has the plate's colour (not a
   hole), so the icon also works without the plate. The TV banner is the same icon on the plate
-  (owner's choice, 2026-11-22). Seed
+  (owner's choice, 2026-11-22). The row logo on the TV home screen is the bare heart, without
+  the plate. Seed
   `#E83A7A` for the fallback palette.
 - Signature element: the services' own pictures of the shows, always landscape (16:9). On the
   phone a 16:9 thumbnail in each row, on the TV
