@@ -2,6 +2,18 @@
 
 Newest first. Add an entry for every notable choice: what was decided, why, and what was rejected.
 
+## 2026-11-22: The icon sits on a soft pink plate, with a pink play button
+
+The owner wanted the app icons out of their white frame, across all of their apps. Launchers cut the
+adaptive icon's background into their own shape, so it stays, now as a soft pink plate (`#FDEBF2` to
+`#F6D5E6`, `drawable/ic_launcher_background.xml`). The heart keeps its gradient; its play button is
+no longer white but the plate's colour, with slightly rounded corners, drawn as a solid shape so the
+icon looks the same without a plate (a future Windows or web icon). The themed icon still cuts the
+play button out. The TV banner follows: the same heart on the plate, replacing the white heart on the
+full gradient. Rejected (in the owner's icon mockups): a sideways heart whose point is the play
+button, a see-through play button (it turns black on dark backgrounds without a plate), a white plate
+and a deep pink plate.
+
 ## 2026-11-01: Claude Code sessions don't build the APK before pushing
 
 Sessions ran `./gradlew testDebugUnitTest lintDebug assembleDebug` before every push, and CI then
