@@ -226,7 +226,10 @@ app apart from their package (and `R` import) lines. Copy a change to the other 
 
 ## This app
 
-- Icon: a heart with a white play button, gradient `#FF7AA8` → `#E83A7A` → `#A82BC4`. Seed
+- Icon: a heart with a play button, gradient `#FF7AA8` → `#E83A7A` → `#A82BC4`, on a soft pink
+  plate (`#FDEBF2` → `#F6D5E6`) instead of white; the play button has the plate's colour (not a
+  hole), so the icon also works without the plate. The TV banner is the same icon on the plate
+  (owner's choice, 2026-11-22). Seed
   `#E83A7A` for the fallback palette.
 - Signature element: the services' own pictures of the shows, always landscape (16:9). On the
   phone a 16:9 thumbnail in each row, on the TV

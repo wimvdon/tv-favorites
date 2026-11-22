@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- TV Favorites: a heart with a play button (DESIGN.md "This app"). Gradient #FF7AA8 → #E83A7A → #A82BC4. -->
+<!-- TV Favorites: a heart with a play button (DESIGN.md "This app"). Heart gradient #FF7AA8 → #E83A7A
+     → #A82BC4. The play button (slightly rounded corners) has the plate's own soft pink, drawn over
+     the same area as ic_launcher_background, so it looks the same with or without the plate. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
@@ -20,7 +22,17 @@
             </gradient>
         </aapt:attr>
     </path>
-    <path
-        android:fillColor="#FFFFFFFF"
-        android:pathData="M48,44.5 L48,62.5 L63.5,53.5 Z" />
+    <path android:pathData="M50.18,45.50L61.69,51.93Q64.50,53.50 61.69,55.07L50.18,61.50Q47.50,63.00 47.50,59.93L47.50,47.07Q47.50,44.00 50.18,45.50Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="18"
+                android:startY="18"
+                android:endX="90"
+                android:endY="90">
+                <item android:color="#FFFDEBF2" android:offset="0" />
+                <item android:color="#FFF6D5E6" android:offset="1" />
+            </gradient>
+        </aapt:attr>
+    </path>
 </vector>
