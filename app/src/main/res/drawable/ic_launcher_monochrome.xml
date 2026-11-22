@@ -5,8 +5,10 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path
-        android:fillColor="#FF000000"
-        android:fillType="evenOdd"
-        android:pathData="M54,82 L30.5,58.5 C24,52 24,41.5 30.5,35 C37,28.5 47.5,28.5 54,35 C60.5,28.5 71,28.5 77.5,35 C84,41.5 84,52 77.5,58.5 Z M50.18,61.50L61.69,55.07Q64.50,53.50 61.69,51.93L50.18,45.50Q47.50,44.00 47.50,47.07L47.50,59.93Q47.50,63.00 50.18,61.50Z" />
+    <group android:pivotX="54" android:pivotY="56" android:scaleX="0.8340" android:scaleY="0.8340" android:translateX="0" android:translateY="-2">
+        <path
+            android:fillColor="#FF000000"
+            android:fillType="evenOdd"
+            android:pathData="M54,82 L30.5,58.5 C24,52 24,41.5 30.5,35 C37,28.5 47.5,28.5 54,35 C60.5,28.5 71,28.5 77.5,35 C84,41.5 84,52 77.5,58.5 Z M50.18,61.50L61.69,55.07Q64.50,53.50 61.69,51.93L50.18,45.50Q47.50,44.00 47.50,47.07L47.50,59.93Q47.50,63.00 50.18,61.50Z" />
+    </group>
 </vector>

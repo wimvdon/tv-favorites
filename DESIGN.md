@@ -11,33 +11,35 @@ rules too: copy this file into it and fill in "This app".
 ## Icons
 
 - One meaningful shape with one diagonal gradient through neighbouring hues (top left to bottom
-  right), filling most of the 66dp safe zone. The shape itself says what the app does: no
-  symbol dropped into a box, no shape inside a shape, no thin outlines, glass or drop shadows.
-- The adaptive-icon background is a soft plate tinted with the app colour, never white: the
-  middle gradient stop mixed with white, 90% at the top left to 80% at the bottom right
-  (`res/drawable/ic_launcher_background.xml`).
-- A detail inside the shape (a check, a play button) is solid in the plate's colour, not a
-  hole and not white, so the icon also reads without its plate.
-- A themed (monochrome) layer: the same shape, with the detail cut out or half transparent.
-- Every other icon of the app follows the same shape. Only icons the system shows as a tile
-  carry the plate: the launcher icon, home-screen shortcuts, TV banners and the icons of an
-  installed web app on a phone (maskable and Apple touch icons). Everywhere else the shape
-  stands on its own, without a plate: in-app logos, the TV home row logo, the status bar
-  (notification) icon, Quick Settings tiles, web favicons, desktop web app icons and extension
-  icons.
+  right). The shape itself says what the app does: no symbol dropped into a box, no shape inside
+  a shape, no thin outlines, glass or drop shadows.
+- Every app uses the same padding: the shape is centred, and its furthest point lies 26.3dp from
+  the middle of the 108dp adaptive canvas (Clauder's ring), well inside the 66dp safe zone. Shapes
+  built around a centre (rings, dials) keep that centre in the middle.
+- No coloured backgrounds. Android needs a background layer, so the adaptive-icon background is
+  plain white (`#FFFFFF`, `res/drawable/ic_launcher_background.xml`). A detail inside the shape
+  (a check, a play button, a bell) is white.
+- A themed (monochrome) layer: the same shape, with the detail cut out.
+- Every other icon of the app follows the same shape. Only icons the system shows as a tile get
+  the white background: the launcher icon, home-screen shortcuts, TV banners and the icons of an
+  installed web app on a phone (maskable and Apple touch icons). Everywhere else the shape stands
+  on its own: in-app logos, the TV home row logo, the status bar (notification) icon, Quick
+  Settings tiles, web favicons, desktop web app and Windows icons, and extension icons.
+- The app's colour scheme follows its icon: the Material seed colour is the gradient's middle
+  stop.
 
-| App | Shape | Gradient | Plate |
-| --- | --- | --- | --- |
-| Watchlist | Wide TV screen with a fat check on its right side | `#3D7BFF` → `#7A5CFF` → `#D15CE6` | `#F2EFFF` → `#E4DEFF` |
-| Content | A C built from the feed symbol's dot and arcs | `#4FC3F7` → `#0091EA` → `#0D47A1` | `#E6F4FD` → `#CFE6F8` |
-| Player | Three uneven bars on their side | `#FFA23A` → `#F0243A` → `#A0105E` | `#FCE9E8` → `#F9D3D1` |
-| Clauder | Progress ring of six segments around a check | `#FAA75E` → `#DA6440` → `#A52E52` | `#FBF1EE` → `#F7E4DD` |
-| Quick Settings | Settings cogwheel with a lightning bolt | `#4FC3F7` → `#3D7BFF` → `#5B4FD9` | `#ECF2FF` → `#D8E5FF` |
-| TV Favorites | Heart with a play button | `#FF7AA8` → `#E83A7A` → `#A82BC4` | `#FDEBF2` → `#F6D5E6` |
-| Screensaver | Crescent moon | `#B388FF` → `#7C4DFF` → `#4527A0` | `#F2EDFF` → `#E5DBFF` |
-| Time Tracker for Notion | Stopwatch with its elapsed time as a slice that fades in | `#FF8A3D` → `#F04438` → `#C81E5A` | `#FEECEB` → `#FCDAD7` |
-| Snoozer | Bell with one fat Z on it | `#22C3B4` → `#3E7BDA` → `#4E5BB0` | `#ECF2FB` → `#D8E5F8` |
-| Noter for Notion | Sticky note with its bottom right corner folded over and two lines of text | `#FFC94D` → `#F5A623` → `#E8710A` | `#FEF6E9` → `#FDEDD3` |
+| App | Shape | Gradient |
+| --- | --- | --- |
+| Watchlist | Wide TV screen with a fat check on its right side | `#3D7BFF` → `#7A5CFF` → `#D15CE6` |
+| Content | A C built from the feed symbol's dot and arcs | `#4FC3F7` → `#0091EA` → `#0D47A1` |
+| Player | Three uneven bars on their side, close together | `#FFA23A` → `#F0243A` → `#A0105E` |
+| Clauder | Progress ring of six segments around a check | `#FAA75E` → `#DA6440` → `#A52E52` |
+| Quick Settings | Settings cogwheel with a lightning bolt | `#4FC3F7` → `#3D7BFF` → `#5B4FD9` |
+| TV Favorites | Heart with a play button | `#FF7AA8` → `#E83A7A` → `#A82BC4` |
+| Screensaver | Crescent moon | `#B388FF` → `#7C4DFF` → `#4527A0` |
+| Time Tracker for Notion | Clock dial with one hand and the elapsed time as a slice | `#FF8A3D` → `#F04438` → `#C81E5A` |
+| Snoozer | Nine-lobed cookie with a bell and a Z on it | `#22C3B4` → `#3E7BDA` → `#4E5BB0` |
+| Noter for Notion | Sticky note with its bottom right corner folded over and two lines of text | `#FFC94D` → `#F5A623` → `#E8710A` |
 
 ## Colour
 
@@ -241,12 +243,10 @@ app apart from their package (and `R` import) lines. Copy a change to the other 
 
 ## This app
 
-- Icon: a heart with a play button, gradient `#FF7AA8` → `#E83A7A` → `#A82BC4`, on a soft pink
-  plate (`#FDEBF2` → `#F6D5E6`) instead of white; the play button has the plate's colour (not a
-  hole), so the icon also works without the plate. The TV banner is the same icon on the plate
-  (owner's choice, 2026-11-22). The row logo on the TV home screen is the bare heart, without
-  the plate. Seed
-  `#E83A7A` for the fallback palette.
+- Icon: a heart with a play button, gradient `#FF7AA8` → `#E83A7A` → `#A82BC4`, on plain white
+  (no plate); the play button is white. The TV banner is the same icon (same padding) on white,
+  and the row logo on the TV home screen is the bare heart. Seed `#E83A7A` for the fallback
+  palette (the gradient's middle stop).
 - Signature element: the services' own pictures of the shows, always landscape (16:9). On the
   phone a 16:9 thumbnail in each row, on the TV
   16:9 cards in rows ("All", then one per service), as on the Android TV home screen.

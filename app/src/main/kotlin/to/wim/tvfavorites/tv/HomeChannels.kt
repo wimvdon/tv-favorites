@@ -229,11 +229,11 @@ class HomeChannels(private val context: Context) {
 
     private fun writeLogo(channelId: Long) {
         runCatching {
-            // The bare heart, without the launcher's plate: the launcher foreground drawn so the
-            // heart (about 57 of its 108 units wide) fills the 160 px logo.
+            // The bare heart, without the launcher's white plate: the launcher foreground drawn so the
+            // heart (about 47.5 of its 108 units wide, after the icon padding) fills the 160 px logo.
             val drawable = ContextCompat.getDrawable(context, R.drawable.ic_launcher_foreground) ?: return
             val bitmap = createBitmap(160, 160)
-            drawable.setBounds(-62, -66, 222, 218)
+            drawable.setBounds(-90, -89, 251, 252)
             drawable.draw(Canvas(bitmap))
             resolver.openOutputStream(TvContract.buildChannelLogoUri(channelId))?.use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
         }.onFailure { Log.w(TAG, "Row logo not written", it) }

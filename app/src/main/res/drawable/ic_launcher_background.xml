@@ -1,23 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The adaptive-icon background: a soft pink plate, #FDEBF2 at the top left to #F6D5E6 at the bottom
-     right, instead of white. It fills the whole layer, so every launcher shape shows it. -->
+<!-- The adaptive-icon background: plain white (DESIGN.md "Icons"). -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path android:pathData="M0,0h108v108h-108z">
-        <aapt:attr name="android:fillColor">
-            <gradient
-                android:type="linear"
-                android:startX="18"
-                android:startY="18"
-                android:endX="90"
-                android:endY="90">
-                <item android:color="#FFFDEBF2" android:offset="0" />
-                <item android:color="#FFF6D5E6" android:offset="1" />
-            </gradient>
-        </aapt:attr>
-    </path>
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M0,0h108v108h-108z" />
 </vector>
